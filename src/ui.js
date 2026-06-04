@@ -24,6 +24,11 @@ export class UI {
     this.hpContainer.textContent = html;
   }
 
+  updateScore(score) {
+    const el = document.getElementById('score-display');
+    if (el) el.textContent = `得分：${score}`;
+  }
+
   updateLevel(level) {
     if (!this.levelDisplay) return;
     const names = { 1: '测试关', 2: 'boss来了' };

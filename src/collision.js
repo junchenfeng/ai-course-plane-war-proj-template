@@ -3,6 +3,8 @@ import { CONFIG, EnemyType } from './config.js';
 import { circleCollision } from './utils.js';
 
 export function checkCollisions(player, enemies, bosses, particles) {
+  let scoreDelta = 0;
+
   // 玩家子弹 vs 敌人
   player.bullets.forEach(bullet => {
     if (!bullet.active) return;
@@ -14,8 +16,14 @@ export function checkCollisions(player, enemies, bosses, particles) {
         const effect = enemy.takeDamage(1);
         bullet.active = false;
         if (effect) {
-          if (effect === 'explosion') particles.createExplosion(enemy.x, enemy.y, '#ffff00');
-          if (effect === 'flash') particles.createFlash(enemy.x, enemy.y, '#44ff44');
+          if (effect === 'explosion') {
+            particles.createExplosion(enemy.x, enemy.y, '#ffff00');
+            scoreDelta += CONFIG.YELLOW_SCORE;
+          }
+          if (effect === 'flash') {
+            particles.createFlash(enemy.x, enemy.y, '#44ff44');
+            scoreDelta += CONFIG.GREEN_SCORE;
+          }
         }
       }
     });
@@ -26,7 +34,10 @@ export function checkCollisions(player, enemies, bosses, particles) {
       if (circleCollision(bullet, bullet.size, boss, boss.size)) {
         const effect = boss.takeDamage(1);
         bullet.active = false;
-        if (effect === 'boss_explosion') particles.createBossExplosion(boss.x, boss.y);
+        if (effect === 'boss_explosion') {
+          particles.createBossExplosion(boss.x, boss.y);
+          scoreDelta += CONFIG.BOSS_SCORE;
+        }
       }
     });
   });
@@ -53,10 +64,21 @@ export function checkCollisions(player, enemies, bosses, particles) {
       player.takeDamage(1);
       const effect = enemy.takeDamage(1);
       if (effect) {
-        if (effect === 'explosion') particles.createExplosion(enemy.x, enemy.y, '#ffff00');
-        if (effect === 'flash') particles.createFlash(enemy.x, enemy.y, '#44ff44');
-        if (effect === 'boss_explosion') particles.createBossExplosion(enemy.x, enemy.y);
+        if (effect === 'explosion') {
+          particles.createExplosion(enemy.x, enemy.y, '#ffff00');
+          scoreDelta += CONFIG.YELLOW_SCORE;
+        }
+        if (effect === 'flash') {
+          particles.createFlash(enemy.x, enemy.y, '#44ff44');
+          scoreDelta += CONFIG.GREEN_SCORE;
+        }
+        if (effect === 'boss_explosion') {
+          particles.createBossExplosion(enemy.x, enemy.y);
+          scoreDelta += CONFIG.BOSS_SCORE;
+        }
       }
     }
   });
+
+  return scoreDelta;
 }

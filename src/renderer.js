@@ -9,8 +9,14 @@ export class Renderer {
     this.initStars();
   }
 
+  resize() {
+    this.stars = [];
+    this.initStars();
+  }
+
   initStars() {
-    for (let i = 0; i < 150; i++) {
+    const count = Math.floor((CONFIG.CANVAS_WIDTH * CONFIG.CANVAS_HEIGHT) / 3200);
+    for (let i = 0; i < count; i++) {
       const isLarge = Math.random() < 0.1;
       this.stars.push({
         x: Math.random() * CONFIG.CANVAS_WIDTH,

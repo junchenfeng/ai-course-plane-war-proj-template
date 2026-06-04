@@ -94,10 +94,12 @@ export class Game {
 
     // 碰撞检测
     const allBosses = this.levelManager.boss ? [this.levelManager.boss] : [];
-    checkCollisions(this.player, this.enemies, allBosses, this.particles);
+    const scoreDelta = checkCollisions(this.player, this.enemies, allBosses, this.particles);
+    this.score += scoreDelta;
 
     // 更新 UI
     this.ui.updateHp(this.player.hp);
+    this.ui.updateScore(this.score);
     this.ui.updateEnemyCount(
       this.levelManager.spawnedCount,
       this.levelManager.totalEnemies
