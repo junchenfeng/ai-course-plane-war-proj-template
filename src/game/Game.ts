@@ -136,9 +136,9 @@ export class Game {
     }
     if (this.levelDesc) {
       if (level === 1) {
-        this.levelDesc.textContent = '10个黄色敌人，5个绿色敌人';
+        this.levelDesc.textContent = '测试关';
       } else {
-        this.levelDesc.textContent = '5个黄色敌人，10个绿色敌人，1个BOSS';
+        this.levelDesc.textContent = 'boss来了';
       }
     }
 
@@ -278,10 +278,13 @@ export class Game {
       });
     });
 
-    // 敌人子弹 vs 玩家
+    // 敌人子弹 vs 玩家（无敌时不受伤）
     this.enemies.forEach(enemy => {
       enemy.getBullets().forEach(bullet => {
         if (!bullet.isBulletActive()) return;
+        
+        // 玩家无敌时不受伤
+        if (this.player.isInvincible()) return;
         
         if (circleCollision(
           bullet.getPosition(),
@@ -295,9 +298,12 @@ export class Game {
       });
     });
 
-    // 绿色敌人（碰撞）vs 玩家
+    // 所有敌人碰撞 vs 玩家（主角机和敌人各扣1HP）
     this.enemies.forEach(enemy => {
-      if (!enemy.isEnemyActive() || enemy.getType() !== EnemyType.GREEN_ARROW) return;
+      if (!enemy.isEnemyActive()) return;
+      
+      // 玩家无敌时不受伤
+      if (this.player.isInvincible()) return;
       
       if (circleCollision(
         enemy.getPosition(),
@@ -305,8 +311,10 @@ export class Game {
         this.player.getPosition(),
         this.player.getSize()
       )) {
-        this.player.takeDamage(2);
-        const deathEffect = enemy.takeDamage(GREEN_ENEMY_HP);
+        // 主角机扣1HP
+        this.player.takeDamage(1);
+        // 敌人扣1HP
+        const deathEffect = enemy.takeDamage(1);
         if (deathEffect) {
           this.createDeathEffect(deathEffect, enemy.getDeathPosition());
         }

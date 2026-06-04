@@ -12,6 +12,8 @@ export class Player {
   private shootCooldown: number = 0;
   private active: boolean = true;
   private bullets: Bullet[] = [];
+  private invincibleTime: number = 0; // 无敌时间（防止连续受伤）
+  private INVINCIBLE_DURATION: number = 500; // 无敌持续时间 500ms
 
   constructor() {
     this.position = {
@@ -26,6 +28,11 @@ export class Player {
     input: { up: boolean; down: boolean; left: boolean; right: boolean; shoot: boolean; mouseX?: number; mouseY?: number; useMouse?: boolean },
     deltaTime: number
   ): void {
+    // 更新无敌时间
+    if (this.invincibleTime > 0) {
+      this.invincibleTime -= deltaTime;
+    }
+
     // 处理移动
     if (input.useMouse && input.mouseX !== undefined && input.mouseY !== undefined) {
       // 鼠标控制
@@ -80,6 +87,11 @@ export class Player {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
+    // 无敌时闪烁效果
+    if (this.isInvincible()) {
+      ctx.globalAlpha = 0.5;
+    }
+
     // 绘制蓝色三角飞机
     ctx.save();
     ctx.translate(this.position.x, this.position.y);
@@ -107,17 +119,31 @@ export class Player {
     
     ctx.shadowBlur = 0;
     ctx.restore();
+    
+    // 重置透明度
+    if (this.isInvincible()) {
+      ctx.globalAlpha = 1;
+    }
 
     // 绘制子弹
     this.bullets.forEach(bullet => bullet.draw(ctx));
   }
 
   takeDamage(amount: number): void {
+    // 如果在无敌时间内，不受伤
+    if (this.invincibleTime > 0) return;
+    
     this.hp -= amount;
     if (this.hp <= 0) {
       this.hp = 0;
       this.active = false;
     }
+    // 受伤后进入无敌时间
+    this.invincibleTime = this.INVINCIBLE_DURATION;
+  }
+
+  isInvincible(): boolean {
+    return this.invincibleTime > 0;
   }
 
   getBullets(): Bullet[] {
@@ -152,5 +178,6 @@ export class Player {
     this.hp = PLAYER_HP;
     this.active = true;
     this.bullets = [];
+    this.invincibleTime = 0;
   }
 }

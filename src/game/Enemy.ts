@@ -92,16 +92,22 @@ export class Enemy {
         break;
 
       case EnemyType.GREEN_ARROW: {
-        // 绿色箭头敌人向主角机位置追踪
+        // 绿色箭头敌人向主角机位置追踪（只能向下或水平移动）
         const direction = calculateDirection(this.position, playerPosition);
         this.position.x += direction.vx * GREEN_ENEMY_TRACKING_SPEED;
-        this.position.y += direction.vy * GREEN_ENEMY_TRACKING_SPEED + 0.5; // 加一点向下移动
+        // 只向下移动，不向上追踪
+        if (direction.vy > 0) {
+          this.position.y += direction.vy * GREEN_ENEMY_TRACKING_SPEED;
+        } else {
+          // 如果玩家在上方，敌人仍然向下移动
+          this.position.y += 0.5;
+        }
         break;
       }
 
       case EnemyType.RED_BOSS:
-        // Boss 缓慢向下移动，到达一定位置后停止
-        if (this.position.y < 100) {
+        // Boss 缓慢向下移动，到达屏幕上方1/4位置后停止
+        if (this.position.y < CANVAS_HEIGHT / 4) {
           this.position.y += 0.5;
         }
 
