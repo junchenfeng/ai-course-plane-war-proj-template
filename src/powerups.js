@@ -1,6 +1,7 @@
 // 道具模块
 import { CONFIG } from './config.js';
 import { circleCollision } from './utils.js';
+import { playPowerUpSound } from './audio.js';
 
 export class PowerUp {
   constructor(x, y) {
@@ -38,6 +39,7 @@ export function checkPowerUpCollisions(player, powerups) {
         player.hasSpreadPowerup = true;
       }
       p.active = false;
+      playPowerUpSound();
     }
   });
 }

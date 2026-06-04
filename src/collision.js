@@ -2,6 +2,7 @@
 import { CONFIG, EnemyType } from './config.js';
 import { circleCollision } from './utils.js';
 import { spawnPowerUp } from './powerups.js';
+import { playHitSound } from './audio.js';
 
 export function checkCollisions(player, enemies, bosses, particles, powerups) {
   let scoreDelta = 0;
@@ -17,6 +18,7 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
       if (circleCollision(bullet, bullet.size, enemy, enemy.size)) {
         const effect = enemy.takeDamage(1);
         bullet.active = false;
+        playHitSound();
         if (effect) {
           if (effect === 'explosion') {
             particles.createExplosion(enemy.x, enemy.y, '#ffff00');
@@ -42,6 +44,7 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
       if (circleCollision(bullet, bullet.size, boss, boss.size)) {
         const effect = boss.takeDamage(1);
         bullet.active = false;
+        playHitSound();
         if (effect === 'boss_explosion') {
           particles.createBossExplosion(boss.x, boss.y);
           scoreDelta += CONFIG.BOSS_SCORE;
