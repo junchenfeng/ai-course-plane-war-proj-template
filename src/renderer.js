@@ -6,22 +6,7 @@ export class Renderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.stars = [];
-    this.playerImage = null;
-    this.playerImageLoaded = false;
     this.initStars();
-    this.loadPlayerImage();
-  }
-
-  loadPlayerImage() {
-    this.playerImage = new Image();
-    this.playerImage.onload = () => {
-      this.playerImageLoaded = true;
-    };
-    this.playerImage.onerror = () => {
-      console.warn('Failed to load player image, using fallback graphics');
-      this.playerImageLoaded = false;
-    };
-    this.playerImage.src = '/images/player-fighter.webp';
   }
 
   resize() {
@@ -86,40 +71,28 @@ export class Renderer {
 
     ctx.save();
     if (player.isInvincible()) ctx.globalAlpha = 0.5;
+    ctx.translate(player.x, player.y);
 
-    if (this.playerImageLoaded && this.playerImage) {
-      // 使用图片绘制玩家
-      const size = CONFIG.PLAYER_SIZE * 2;
-      const x = player.x - size / 2;
-      const y = player.y - size / 2;
-      
-      // 直接绘制图片，无额外发光效果
-      ctx.drawImage(this.playerImage, x, y, size, size);
-    } else {
-      // 回退到几何图形绘制
-      ctx.translate(player.x, player.y);
-      
-      // 主体三角形
-      ctx.beginPath();
-      ctx.moveTo(0, -CONFIG.PLAYER_SIZE);
-      ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
-      ctx.lineTo(CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
-      ctx.closePath();
-      ctx.fillStyle = '#4488ff';
-      ctx.shadowColor = '#4488ff';
-      ctx.shadowBlur = 15;
-      ctx.fill();
+    // 主体三角形
+    ctx.beginPath();
+    ctx.moveTo(0, -CONFIG.PLAYER_SIZE);
+    ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
+    ctx.lineTo(CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
+    ctx.closePath();
+    ctx.fillStyle = '#4488ff';
+    ctx.shadowColor = '#4488ff';
+    ctx.shadowBlur = 15;
+    ctx.fill();
 
-      // 内部装饰
-      ctx.beginPath();
-      ctx.moveTo(0, -CONFIG.PLAYER_SIZE * 0.6);
-      ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
-      ctx.lineTo(CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
-      ctx.closePath();
-      ctx.fillStyle = '#66aaff';
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
+    // 内部装饰
+    ctx.beginPath();
+    ctx.moveTo(0, -CONFIG.PLAYER_SIZE * 0.6);
+    ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
+    ctx.lineTo(CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
+    ctx.closePath();
+    ctx.fillStyle = '#66aaff';
+    ctx.fill();
+    ctx.shadowBlur = 0;
 
     ctx.restore();
 
