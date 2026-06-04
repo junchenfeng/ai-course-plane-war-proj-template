@@ -3,37 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="飞机大战 - 经典射击游戏" />
     <title>飞机大战</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="ui-overlay">
-      <div id="hp-display"></div>
-      <div id="level-display"></div>
-      <div id="enemy-count-display"></div>
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud">
+      <div id="hp-container">♥♥♥♥♥</div>
+      <div id="level-display">第1关：测试关</div>
+      <div id="enemy-count">敌人：0/0</div>
     </div>
-    <div id="game-over" class="hidden">
-      <div class="game-over-content">
-        <h1>游戏结束</h1>
-        <p id="final-score"></p>
-        <button id="restart-btn">重新开始</button>
+
+    <!-- Boss HP -->
+    <div id="boss-hp-container" style="display:none;">
+      <div id="boss-hp-label">BOSS</div>
+      <div id="boss-hp-bar-bg">
+        <div id="boss-hp-bar"></div>
       </div>
     </div>
-    <div id="level-transition" class="hidden">
-      <div class="level-content">
-        <h1 id="level-title"></h1>
-        <p id="level-desc"></p>
-      </div>
-    </div>
+
+    <!-- 开始界面 -->
     <div id="start-screen">
-      <div class="start-content">
-        <h1>飞机大战</h1>
-        <p>使用 WASD 或鼠标移动</p>
-        <p>空格或点击左键发射子弹</p>
+      <div class="screen-content">
+        <h1>✈ 飞机大战</h1>
+        <p>WASD 或鼠标移动 | 空格或点击射击</p>
         <button id="start-btn">开始游戏</button>
       </div>
     </div>
-    <script type="module" src="/src/index.ts"></script>
+
+    <!-- 游戏结束 -->
+    <div id="game-over-screen" style="display:none;">
+      <div class="screen-content">
+        <h1>游戏结束</h1>
+        <p>得分：<span id="final-score">0</span></p>
+        <button id="restart-btn">重新开始</button>
+      </div>
+    </div>
+
+    <!-- 胜利 -->
+    <div id="win-screen" style="display:none;">
+      <div class="screen-content">
+        <h1>🎉 恭喜通关！</h1>
+        <p>得分：<span id="win-score">0</span></p>
+        <button id="win-restart-btn">再来一局</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>

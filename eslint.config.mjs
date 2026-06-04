@@ -1,31 +1,25 @@
-import eslint from '@eslint/js';
-import pluginImport from 'eslint-plugin-import';
-import tseslint from 'typescript-eslint';
-import { defineConfig, globalIgnores } from 'eslint/config';
+import js from "@eslint/js";
 
-export default defineConfig([
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+export default [
+  js.configs.recommended,
   {
-    settings: {
-      'import/extensions': ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'],
-      'import/resolver': {
-        node: {
-          extensions: ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'],
-        },
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        window: "readonly",
+        document: "readonly",
+        requestAnimationFrame: "readonly",
+        setInterval: "readonly",
+        clearInterval: "readonly",
+        Math: "readonly",
+        console: "readonly",
+        AudioContext: "readonly",
       },
     },
-    plugins: {
-      import: pluginImport,
-    },
     rules: {
-      'import/no-cycle': ['error', { ignoreExternal: true }],
+      "no-unused-vars": "warn",
+      "no-undef": "error",
     },
   },
-  globalIgnores([
-    'dist/**',
-    'dist-server/**',
-    'node_modules/**',
-    'scripts/**',
-  ]),
-]);
+];

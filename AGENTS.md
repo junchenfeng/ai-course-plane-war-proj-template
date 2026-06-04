@@ -2,45 +2,44 @@
 
 ## 技术栈
 
-- **核心**: Vite 7, TypeScript, Express
-- **UI**: Tailwind CSS
+- **核心**: Vite 6, 纯 JavaScript (ES Module)
+- **样式**: 原生 CSS
 
 ## 目录结构
 
 ```
-├── scripts/            # 构建与启动脚本
-│   ├── build.sh        # 构建脚本
-│   ├── dev.sh          # 开发环境启动脚本
-│   ├── prepare.sh      # 预处理脚本
-│   └── start.sh        # 生产环境启动脚本
-├── server/             # 服务端逻辑
-│   ├── routes/         # API 路由
-│   ├── server.ts       # Express 服务入口
-│   └── vite.ts         # Vite 中间件集成
-├── src/                # 前端源码
-│   ├── index.css       # 全局样式
-│   ├── index.ts        # 客户端入口
-│   └── main.ts         # 主逻辑
-├── index.html          # 入口 HTML
-├── package.json        # 项目依赖管理
-├── tsconfig.json       # TypeScript 配置
-└── vite.config.ts      # Vite 配置
+├── index.html              # HTML 结构和 DOM 元素
+├── package.json            # 依赖只有 vite
+├── vite.config.js          # Vite 基础配置
+├── public/
+│   ├── images/             # 图片资源目录
+│   └── sounds/             # 音频资源目录
+├── src/
+│   ├── main.js             # 入口，导入所有模块并启动游戏
+│   ├── config.js           # 导出 CONFIG、EnemyType、BulletOwner
+│   ├── audio.js            # audioCtx 创建、音效播放
+│   ├── player.js           # 玩家创建、移动、射击逻辑 + Bullet 类
+│   ├── enemies.js          # 敌机生成、更新、射击逻辑
+│   ├── boss.js             # BOSS 生成、移动、射击、死亡逻辑
+│   ├── particles.js        # 粒子创建、更新逻辑
+│   ├── collision.js        # 所有碰撞检测
+│   ├── renderer.js         # draw() 函数：星空、玩家、敌机、BOSS、子弹、粒子
+│   ├── ui.js               # updateUI、关卡显示更新
+│   ├── input.js            # 键盘、鼠标事件监听
+│   ├── levels.js           # 关卡系统：敌人生成、关卡切换
+│   ├── game.js             # 游戏主循环
+│   ├── utils.js            # 工具函数
+│   └── style.css           # 全局样式
+└── README.md
 ```
 
 ## 包管理规范
 
 **仅允许使用 pnpm** 作为包管理器，**严禁使用 npm 或 yarn**。
-**常用命令**：
-- 安装依赖：`pnpm add <package>`
-- 安装开发依赖：`pnpm add -D <package>`
-- 安装所有依赖：`pnpm install`
-- 移除依赖：`pnpm remove <package>`
 
 ## 开发规范
 
-- 使用 Tailwind CSS 进行样式开发
-
-### 编码规范
-
-- 默认按 TypeScript `strict` 心智写代码；优先复用当前作用域已声明的变量、函数、类型和导入，禁止引用未声明标识符或拼错变量名。
-- 禁止隐式 `any` 和 `as any`；函数参数、返回值、解构项、事件对象、Express `req`/`res`、`catch` 错误在使用前应有明确类型或先完成类型收窄，并清理未使用的变量和导入。
+- 纯 JavaScript ES Module，无 TypeScript
+- 使用原生 CSS 进行样式开发
+- 游戏使用 Canvas 2D API 渲染
+- 所有模块通过 ES import/export 组织
