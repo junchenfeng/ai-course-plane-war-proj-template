@@ -53,27 +53,24 @@ export class Game {
   }
 
   _bindPowerupClick() {
-    // 移动端点击道具图标触发背包中的道具
     const spreadEl = document.getElementById('spread-indicator');
+    const bombEl = document.getElementById('bomb-indicator');
+
+    const makeHandler = (type) => () => {
+      if (this.gameState === 'playing') {
+        activatePowerUp(this.player, type);
+      }
+    };
+
     if (spreadEl) {
-      spreadEl.addEventListener('click', () => {
-        if (this.gameState === 'playing') {
-          // 按优先级激活背包中的道具
-          activatePowerUp(this.player, PowerUpType.SPREAD) ||
-          activatePowerUp(this.player, PowerUpType.SPEED) ||
-          activatePowerUp(this.player, PowerUpType.BOMB) ||
-          activatePowerUp(this.player, PowerUpType.MAGNET);
-        }
-      });
-      spreadEl.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        if (this.gameState === 'playing') {
-          activatePowerUp(this.player, PowerUpType.SPREAD) ||
-          activatePowerUp(this.player, PowerUpType.SPEED) ||
-          activatePowerUp(this.player, PowerUpType.BOMB) ||
-          activatePowerUp(this.player, PowerUpType.MAGNET);
-        }
-      });
+      const h = makeHandler(PowerUpType.SPREAD);
+      spreadEl.addEventListener('click', h);
+      spreadEl.addEventListener('touchend', (e) => { e.preventDefault(); h(); });
+    }
+    if (bombEl) {
+      const h = makeHandler(PowerUpType.BOMB);
+      bombEl.addEventListener('click', h);
+      bombEl.addEventListener('touchend', (e) => { e.preventDefault(); h(); });
     }
   }
 
@@ -109,12 +106,10 @@ export class Game {
   }
 
   _update(deltaTime) {
-    // 道具触发（键盘1-4）
+    // 道具触发（键盘1）
     if (this.input.consumeSpreadTrigger()) {
       activatePowerUp(this.player, PowerUpType.SPREAD) ||
-      activatePowerUp(this.player, PowerUpType.SPEED) ||
-      activatePowerUp(this.player, PowerUpType.BOMB) ||
-      activatePowerUp(this.player, PowerUpType.MAGNET);
+      activatePowerUp(this.player, PowerUpType.BOMB);
     }
 
     // 更新星空
@@ -152,22 +147,32 @@ export class Game {
     this.powerups = this.powerups.filter(p => p.active);
     checkPowerUpCollisions(this.player, this.powerups);
 
-    // 炸弹清屏（清除所有敌人子弹）
+    // 炸弹清屏：清除所有敌人子弹 + 全体敌人扣 5HP
     if (this.player.bombRequested) {
       this.player.bombRequested = false;
-      this.enemies.forEach(e => { e.bullets = []; });
+      this.enemies.forEach(e => {
+        e.bullets = [];
+        e.hp -= CONFIG.BOMB_DAMAGE;
+        if (e.hp <= 0) {
+          e.active = false;
+          this.particles.createExplosion(e.x, e.y, '#ff4444', 20);
+          this.score += CONFIG.YELLOW_SCORE;
+          this.killCount++;
+        }
+      });
       if (this.levelManager.boss && this.levelManager.boss.active) {
         this.levelManager.boss.bullets = [];
+        this.levelManager.boss.hp -= CONFIG.BOMB_DAMAGE;
       }
       // 炸弹粒子特效
       this.particles.createExplosion(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, '#ff4444', 60);
-      this.score += 50; // 炸弹奖励分
     }
 
     // 更新 UI
     this.ui.updateHp(this.player.hp);
     this.ui.updateScore(this.score);
     this.ui.updateSpreadIndicator(this.player.spreadActive, this.player.hasSpreadPowerup);
+    this.ui.updateBombIndicator(this.player.hasBombPowerup);
     this.ui.updateEnemyCount(
       this.levelManager.spawnedCount,
       this.levelManager.totalEnemies

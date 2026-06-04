@@ -1,5 +1,5 @@
 // 渲染模块
-import { CONFIG, EnemyType, BulletOwner } from './config.js';
+import { CONFIG, EnemyType, BulletOwner, PowerUpType, POWERUP_CONFIGS } from './config.js';
 
 export class Renderer {
   constructor(canvas) {
@@ -246,14 +246,17 @@ export class Renderer {
   drawPowerUp(powerup) {
     const ctx = this.ctx;
     if (!powerup.active) return;
+    const cfg = powerup.cfg;
     ctx.save();
     ctx.translate(powerup.x, powerup.y);
 
     // 外发光
     ctx.beginPath();
     ctx.arc(0, 0, powerup.size + 4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(68, 136, 255, 0.2)';
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = cfg.color;
     ctx.fill();
+    ctx.globalAlpha = 1;
 
     // 主体菱形
     ctx.beginPath();
@@ -262,18 +265,19 @@ export class Renderer {
     ctx.lineTo(0, powerup.size);
     ctx.lineTo(-powerup.size, 0);
     ctx.closePath();
-    ctx.fillStyle = '#4488ff';
-    ctx.shadowColor = '#4488ff';
+    ctx.fillStyle = cfg.color;
+    ctx.shadowColor = cfg.color;
     ctx.shadowBlur = 12;
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // 内部 S 标识
+    // 内部标识字母
     ctx.fillStyle = '#ffffff';
-    ctx.font = `${powerup.size * 1.2}px sans-serif`;
+    ctx.font = `bold ${powerup.size * 1.1}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('S', 0, 1);
+    const labels = { [PowerUpType.SPREAD]: 'S', [PowerUpType.BOMB]: 'B', [PowerUpType.HEART]: 'H' };
+    ctx.fillText(labels[powerup.type] || '?', 0, 1);
 
     ctx.restore();
   }

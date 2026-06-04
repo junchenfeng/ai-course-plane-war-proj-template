@@ -23,45 +23,40 @@ export class PowerUp {
   }
 }
 
-// 随机生成道具 — 按权重从所有已注册类型中挑选
+// 随机生成道具 — 三种等权重
 export function spawnPowerUp(x, y) {
   if (Math.random() >= CONFIG.POWERUP_DROP_RATE) return null;
 
-  // 按权重选道具类型
-  const types = Object.values(PowerUpType);
-  const totalWeight = types.reduce((sum, t) => sum + POWERUP_CONFIGS[t].dropWeight, 0);
-  let rand = Math.random() * totalWeight;
-  for (const t of types) {
-    rand -= POWERUP_CONFIGS[t].dropWeight;
-    if (rand <= 0) return new PowerUp(x, y, t);
-  }
-  return new PowerUp(x, y, PowerUpType.SPREAD);
+  const types = [PowerUpType.SPREAD, PowerUpType.BOMB, PowerUpType.HEART];
+  const idx = Math.floor(Math.random() * types.length);
+  return new PowerUp(x, y, types[idx]);
 }
 
-// 玩家拾取道具 — 加入背包（不自动激活）
+// 玩家拾取道具
 export function checkPowerUpCollisions(player, powerups) {
   powerups.forEach(p => {
     if (!p.active) return;
     if (circleCollision(p, p.size, player, CONFIG.PLAYER_SIZE)) {
-      const cfg = p.cfg;
 
-      // 生命道具：拾取即时生效
+      // 生命：瞬间消耗品，拾取即生效，不存背包
       if (p.type === PowerUpType.HEART) {
-        player.hp = Math.min(player.hp + 1, CONFIG.PLAYER_HP);
+        player.hp = Math.min(player.hp + 1, CONFIG.PLAYER_MAX_HP);
         p.active = false;
         playPowerUpSound();
         return;
       }
 
-      // 其他道具：存入背包
+      // 散弹/炸弹：存入背包
       if (!player.inventory) player.inventory = {};
       if (!player.inventory[p.type]) player.inventory[p.type] = 0;
-      if (player.inventory[p.type] < cfg.maxInventory) {
+      if (player.inventory[p.type] < p.cfg.maxInventory) {
         player.inventory[p.type]++;
       }
       // 同步持有态标志（UI 需要感知背包状态）
       if (p.type === PowerUpType.SPREAD) {
         player.hasSpreadPowerup = true;
+      } else if (p.type === PowerUpType.BOMB) {
+        player.hasBombPowerup = true;
       }
       p.active = false;
       playPowerUpSound();
@@ -83,17 +78,10 @@ export function activatePowerUp(player, type) {
       player.hasSpreadPowerup = true;
       player.spreadTimer = cfg.duration;
       break;
-    case PowerUpType.SPEED:
-      player.speedBoosted = true;
-      player.speedTimer = cfg.duration;
-      break;
     case PowerUpType.BOMB:
-      // 清除全屏敌人子弹（由 game.js 调用实现）
+      // 瞬间效果：由 game.js 检测 bombRequested 后处理
       player.bombRequested = true;
-      break;
-    case PowerUpType.MAGNET:
-      player.magnetActive = true;
-      player.magnetTimer = cfg.duration;
+      player.hasBombPowerup = !!(player.inventory && player.inventory[type] && player.inventory[type] > 0);
       break;
   }
   return true;

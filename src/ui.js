@@ -19,6 +19,7 @@ export class UI {
     this.winScore = document.getElementById('win-score');
     this.winKills = document.getElementById('win-kills');
     this.spreadIndicator = document.getElementById('spread-indicator');
+    this.bombIndicator = document.getElementById('bomb-indicator');
     this.controlsHelp = document.getElementById('controls-help');
 
     this._initControlsHelp();
@@ -73,6 +74,15 @@ export class UI {
       this.spreadIndicator.className = 'powerup-indicator has-powerup';
     } else {
       this.spreadIndicator.className = 'powerup-indicator';
+    }
+  }
+
+  updateBombIndicator(hasPowerup) {
+    if (!this.bombIndicator) return;
+    if (hasPowerup) {
+      this.bombIndicator.className = 'powerup-indicator has-powerup';
+    } else {
+      this.bombIndicator.className = 'powerup-indicator';
     }
   }
 

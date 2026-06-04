@@ -77,10 +77,12 @@ export const CONFIG = {
   STAR_TWINKLE_SPEED: 0.003,
 
   // ===== 道具 =====
-  POWERUP_DROP_RATE: 0.1,
+  POWERUP_DROP_RATE: 0.05,
   POWERUP_SPREAD_ANGLE: 15,
   POWERUP_SIZE: 12,
   POWERUP_FALL_SPEED: 2,
+  PLAYER_MAX_HP: 5,
+  BOMB_DAMAGE: 5,
 
   // ===== 商城（预留） =====
   SHOP_STARTING_COINS: 12580,
@@ -141,12 +143,9 @@ export const BulletOwner = {
 // 新增道具只需在此追加一条 definition 即可，无需改动碰撞/渲染逻辑
 
 export const PowerUpType = {
-  SPREAD: 'spread',
-  SHIELD: 'shield',
-  SPEED: 'speed',
-  BOMB: 'bomb',
-  MAGNET: 'magnet',
-  HEART: 'heart',
+  SPREAD: 'spread',   // 可储存状态道具：激活后持续发射散弹
+  BOMB: 'bomb',       // 可储存消耗品：清屏子弹 + 全体敌人扣血
+  HEART: 'heart',     // 瞬间消耗品：拾取即恢复 1HP
 };
 
 // 道具配置注册表 — 每个道具类型一条
@@ -157,54 +156,19 @@ export const POWERUP_CONFIGS = {
     color: '#4488ff',
     icon: 'crosshair',
     description: '发射 3 颗散射子弹',
-    price: 500,
-    duration: 5000,        // ms, 0=瞬时
-    dropWeight: 30,          // 掉落权重
+    duration: 5000,        // ms, 持续状态时长
+    dropWeight: 1,          // 掉落权重（三种等权重）
     maxInventory: 1,         // 背包最大持有数
     isActivable: true,      // 可主动激活
-  },
-  [PowerUpType.SHIELD]: {
-    name: '护盾',
-    color: '#44ff88',
-    icon: 'shield',
-    description: '抵挡一次攻击',
-    price: 800,
-    duration: 0,
-    dropWeight: 20,
-    maxInventory: 3,
-    isActivable: false,     // 被动触发
-  },
-  [PowerUpType.SPEED]: {
-    name: '加速',
-    color: '#ffaa00',
-    icon: 'zap',
-    description: '提升移动速度和射速',
-    price: 600,
-    duration: 4000,
-    dropWeight: 20,
-    maxInventory: 1,
-    isActivable: true,
   },
   [PowerUpType.BOMB]: {
     name: '炸弹',
     color: '#ff4444',
     icon: 'bomb',
-    description: '清除全屏敌人子弹',
-    price: 1200,
-    duration: 0,
-    dropWeight: 10,
+    description: '清除全屏子弹并伤害所有敌人',
+    duration: 0,            // 无持续状态，瞬间生效
+    dropWeight: 1,
     maxInventory: 3,
-    isActivable: true,
-  },
-  [PowerUpType.MAGNET]: {
-    name: '磁铁',
-    color: '#ff44ff',
-    icon: 'magnet',
-    description: '自动吸附附近道具',
-    price: 700,
-    duration: 8000,
-    dropWeight: 10,
-    maxInventory: 1,
     isActivable: true,
   },
   [PowerUpType.HEART]: {
@@ -212,10 +176,9 @@ export const POWERUP_CONFIGS = {
     color: '#ff4488',
     icon: 'heart',
     description: '恢复 1 点生命值',
-    price: 1000,
-    duration: 0,
-    dropWeight: 10,
-    maxInventory: 5,
-    isActivable: false,     // 拾取即生效
+    duration: 0,            // 拾取即生效
+    dropWeight: 1,
+    maxInventory: 0,         // 不可储存，拾取即用
+    isActivable: false,     // 不可主动激活
   },
 };
