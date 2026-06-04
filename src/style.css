@@ -26,44 +26,51 @@ body {
 /* HUD 左下角 */
 #hud {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: 16px;
+  left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   align-items: flex-start;
   z-index: 10;
   pointer-events: none;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 14px 18px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 #hp-container {
   color: #ff4444;
-  font-size: 22px;
-  letter-spacing: 3px;
-  text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+  font-size: 26px;
+  letter-spacing: 4px;
+  text-shadow: 0 0 12px rgba(255, 68, 68, 0.6);
+  line-height: 1;
 }
 
 #score-display {
   color: #ffffff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 /* 道具栏 */
 #powerup-bar {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .powerup-indicator {
-  padding: 2px 10px;
+  padding: 4px 14px;
   border: 1px solid #555;
-  border-radius: 4px;
+  border-radius: 6px;
   color: #555;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: bold;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   transition: all 0.3s;
   pointer-events: auto;
   cursor: pointer;
@@ -73,58 +80,60 @@ body {
 .powerup-indicator.has-powerup {
   color: #4488ff;
   border-color: #4488ff;
-  background: rgba(68, 136, 255, 0.15);
-  box-shadow: 0 0 10px rgba(68, 136, 255, 0.4);
+  background: rgba(68, 136, 255, 0.2);
+  box-shadow: 0 0 12px rgba(68, 136, 255, 0.5);
   animation: pulse-glow 1.5s ease-in-out infinite;
 }
 
 .powerup-indicator.active {
   color: #44ff44;
   border-color: #44ff44;
-  background: rgba(68, 255, 68, 0.15);
-  box-shadow: 0 0 10px rgba(68, 255, 68, 0.4);
+  background: rgba(68, 255, 68, 0.2);
+  box-shadow: 0 0 12px rgba(68, 255, 68, 0.5);
   animation: flash-blink 0.5s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 10px rgba(68, 136, 255, 0.4); }
-  50% { box-shadow: 0 0 20px rgba(68, 136, 255, 0.7); }
+  0%, 100% { box-shadow: 0 0 12px rgba(68, 136, 255, 0.5); }
+  50% { box-shadow: 0 0 24px rgba(68, 136, 255, 0.8); }
 }
 
 @keyframes flash-blink {
-  0%, 100% { 
-    opacity: 1;
-    box-shadow: 0 0 10px rgba(68, 255, 68, 0.4);
-  }
-  50% { 
-    opacity: 0.5;
-    box-shadow: 0 0 25px rgba(68, 255, 68, 0.8);
-  }
+  0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(68, 255, 68, 0.5); }
+  50% { opacity: 0.5; box-shadow: 0 0 28px rgba(68, 255, 68, 0.9); }
 }
 
-/* 顶部 HUD */
-#top-hud {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 30px;
-  align-items: center;
-  z-index: 10;
-  pointer-events: none;
-}
-
+/* 左上角关卡信息 */
 #level-display {
+  position: absolute;
+  top: 16px;
+  left: 16px;
   color: #ffffff;
   font-size: 18px;
   font-weight: bold;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  z-index: 10;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 16px;
+  backdrop-filter: blur(4px);
 }
 
 #enemy-count {
+  position: absolute;
+  top: 56px;
+  left: 16px;
   color: #aaaacc;
-  font-size: 16px;
+  font-size: 14px;
+  z-index: 10;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px 14px;
+  backdrop-filter: blur(4px);
 }
 
 /* Boss HP */
@@ -214,12 +223,40 @@ body {
 /* 右下角操作说明 */
 #controls-help {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 13px;
+  bottom: 16px;
+  right: 16px;
   z-index: 10;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  backdrop-filter: blur(4px);
+}
+
+.help-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.help-key {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: bold;
+  min-width: 32px;
+  text-align: right;
+}
+
+.help-val {
+  color: rgba(255, 255, 255, 0.5);
+  text-align: left;
 }
 
 /* 关卡过渡 */
@@ -246,11 +283,110 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 移动端道具图标放大 */
+/* 平板适配 */
+@media (max-width: 1024px) {
+  #hud {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+  #hp-container {
+    font-size: 22px;
+  }
+  #score-display {
+    font-size: 15px;
+  }
+  #level-display {
+    font-size: 15px;
+    padding: 6px 12px;
+  }
+  #enemy-count {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+}
+
+/* 手机适配 */
 @media (max-width: 768px), (pointer: coarse) {
+  #hud {
+    padding: 10px 12px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+  #hp-container {
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+  #score-display {
+    font-size: 13px;
+  }
   .powerup-indicator {
-    padding: 6px 16px;
-    font-size: 16px;
-    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+  }
+  #level-display {
+    font-size: 13px;
+    padding: 5px 10px;
+    border-radius: 8px;
+  }
+  #enemy-count {
+    font-size: 11px;
+    padding: 3px 8px;
+    top: 48px;
+  }
+  #controls-help {
+    padding: 8px 10px;
+    gap: 3px;
+    border-radius: 8px;
+  }
+  .help-line {
+    font-size: 11px;
+    gap: 8px;
+  }
+  .help-key {
+    min-width: 28px;
+  }
+  #boss-hp-bar-bg {
+    width: 220px;
+  }
+}
+
+/* 小屏手机 */
+@media (max-width: 480px) {
+  #hud {
+    bottom: 10px;
+    left: 10px;
+    padding: 8px 10px;
+  }
+  #hp-container {
+    font-size: 18px;
+  }
+  #controls-help {
+    bottom: 10px;
+    right: 10px;
+    padding: 6px 8px;
+  }
+  .help-line {
+    font-size: 10px;
+    gap: 6px;
+  }
+  #level-display {
+    top: 10px;
+    left: 10px;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  #enemy-count {
+    top: 42px;
+    left: 10px;
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  #boss-hp-bar-bg {
+    width: 180px;
+    height: 6px;
+  }
+  #boss-hp-container {
+    top: 48px;
   }
 }

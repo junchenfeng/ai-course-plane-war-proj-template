@@ -9,6 +9,10 @@
   <body>
     <canvas id="game-canvas"></canvas>
 
+    <!-- 左上角关卡信息 -->
+    <div id="level-display">第1关：测试关</div>
+    <div id="enemy-count">敌人：0/0</div>
+
     <!-- HUD 左下角 -->
     <div id="hud">
       <div id="hp-container">♥♥♥♥♥</div>
@@ -18,14 +22,12 @@
       <div id="score-display">得分：0</div>
     </div>
 
-    <!-- 顶部信息 -->
-    <div id="top-hud">
-      <div id="level-display">第1关：测试关</div>
-      <div id="enemy-count">敌人：0/0</div>
-    </div>
-
     <!-- 右下角操作说明 -->
-    <div id="controls-help">WASD 移动 | 空格射击 | 数字1 触发散弹</div>
+    <div id="controls-help">
+      <div class="help-line"><span class="help-key">移动</span><span class="help-val" id="help-move">WASD</span></div>
+      <div class="help-line"><span class="help-key">射击</span><span class="help-val" id="help-shoot">空格</span></div>
+      <div class="help-line"><span class="help-key">散弹</span><span class="help-val" id="help-spread">数字1</span></div>
+    </div>
 
     <!-- Boss HP -->
     <div id="boss-hp-container" style="display:none;">

@@ -25,11 +25,18 @@ export class UI {
   }
 
   _initControlsHelp() {
-    if (!this.controlsHelp) return;
+    const moveEl = document.getElementById('help-move');
+    const shootEl = document.getElementById('help-shoot');
+    const spreadEl = document.getElementById('help-spread');
+    if (!moveEl || !shootEl || !spreadEl) return;
     if (isMobile) {
-      this.controlsHelp.textContent = '滑动移动 | 点击射击 | 点击道具图标触发散弹';
+      moveEl.textContent = '滑动';
+      shootEl.textContent = '点击';
+      spreadEl.textContent = '点击图标';
     } else {
-      this.controlsHelp.textContent = 'WASD 移动 | 空格射击 | 数字1 触发散弹';
+      moveEl.textContent = 'WASD';
+      shootEl.textContent = '空格';
+      spreadEl.textContent = '数字1';
     }
   }
 
