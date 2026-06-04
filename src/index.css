@@ -3,19 +3,221 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
+
+#gameCanvas {
+  display: block;
+  background: #0a0a0a;
+}
+
+#ui-overlay {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#hp-display {
+  font-size: 24px;
+  color: #ff4444;
+  text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+}
+
+#level-display {
+  font-size: 20px;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+#enemy-count-display {
+  font-size: 16px;
+  color: #aaaaaa;
+}
+
+#game-over {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+#game-over.hidden {
+  display: none;
+}
+
+.game-over-content {
+  text-align: center;
+  padding: 40px;
+  background: rgba(30, 30, 30, 0.9);
+  border-radius: 20px;
+  border: 2px solid #ff4444;
+  box-shadow: 0 0 30px rgba(255, 68, 68, 0.3);
+}
+
+.game-over-content h1 {
+  font-size: 48px;
+  color: #ff4444;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+}
+
+.game-over-content p {
+  font-size: 24px;
+  color: #ffffff;
+  margin-bottom: 30px;
+}
+
+#restart-btn {
+  padding: 15px 40px;
+  font-size: 20px;
+  background: linear-gradient(135deg, #4488ff, #2266dd);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(68, 136, 255, 0.4);
+}
+
+#restart-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(68, 136, 255, 0.6);
+}
+
+#level-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+#level-transition.hidden {
+  display: none;
+}
+
+.level-content {
+  text-align: center;
+}
+
+.level-content h1 {
+  font-size: 64px;
+  color: #4488ff;
+  text-shadow: 0 0 30px rgba(68, 136, 255, 0.8);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.level-content p {
+  font-size: 24px;
+  color: #ffffff;
+  margin-top: 20px;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+#start-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+#start-screen.hidden {
+  display: none;
+}
+
+.start-content {
+  text-align: center;
+  padding: 60px;
+  background: rgba(30, 30, 50, 0.9);
+  border-radius: 30px;
+  border: 2px solid #4488ff;
+  box-shadow: 0 0 50px rgba(68, 136, 255, 0.3);
+}
+
+.start-content h1 {
+  font-size: 56px;
+  color: #4488ff;
+  margin-bottom: 30px;
+  text-shadow: 0 0 30px rgba(68, 136, 255, 0.6);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.start-content p {
+  font-size: 18px;
+  color: #cccccc;
+  margin-bottom: 15px;
+}
+
+#start-btn {
+  margin-top: 30px;
+  padding: 18px 50px;
+  font-size: 24px;
+  background: linear-gradient(135deg, #4488ff, #2266dd);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(68, 136, 255, 0.5);
+}
+
+#start-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 30px rgba(68, 136, 255, 0.7);
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 20px rgba(68, 136, 255, 0.4);
+  }
+  to {
+    text-shadow: 0 0 40px rgba(68, 136, 255, 0.8);
+  }
 }

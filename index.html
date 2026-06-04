@@ -3,11 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="扣子编程，你的 AI 开发伙伴已就位" />
-    <title>扣子编程 - AI 开发伙伴</title>
+    <meta name="description" content="飞机大战 - 经典射击游戏" />
+    <title>飞机大战</title>
   </head>
   <body>
-    <div id="app"></div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui-overlay">
+      <div id="hp-display"></div>
+      <div id="level-display"></div>
+      <div id="enemy-count-display"></div>
+    </div>
+    <div id="game-over" class="hidden">
+      <div class="game-over-content">
+        <h1>游戏结束</h1>
+        <p id="final-score"></p>
+        <button id="restart-btn">重新开始</button>
+      </div>
+    </div>
+    <div id="level-transition" class="hidden">
+      <div class="level-content">
+        <h1 id="level-title"></h1>
+        <p id="level-desc"></p>
+      </div>
+    </div>
+    <div id="start-screen">
+      <div class="start-content">
+        <h1>飞机大战</h1>
+        <p>使用 WASD 或鼠标移动</p>
+        <p>空格或点击左键发射子弹</p>
+        <button id="start-btn">开始游戏</button>
+      </div>
+    </div>
     <script type="module" src="/src/index.ts"></script>
   </body>
 </html>
