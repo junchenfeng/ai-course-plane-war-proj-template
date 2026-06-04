@@ -59,6 +59,10 @@ export function checkPowerUpCollisions(player, powerups) {
       if (player.inventory[p.type] < cfg.maxInventory) {
         player.inventory[p.type]++;
       }
+      // 同步持有态标志（UI 需要感知背包状态）
+      if (p.type === PowerUpType.SPREAD) {
+        player.hasSpreadPowerup = true;
+      }
       p.active = false;
       playPowerUpSound();
     }
@@ -77,11 +81,11 @@ export function activatePowerUp(player, type) {
     case PowerUpType.SPREAD:
       player.spreadActive = true;
       player.hasSpreadPowerup = true;
-      setTimeout(() => { player.spreadActive = false; }, cfg.duration);
+      player.spreadTimer = cfg.duration;
       break;
     case PowerUpType.SPEED:
       player.speedBoosted = true;
-      setTimeout(() => { player.speedBoosted = false; }, cfg.duration);
+      player.speedTimer = cfg.duration;
       break;
     case PowerUpType.BOMB:
       // 清除全屏敌人子弹（由 game.js 调用实现）
@@ -89,7 +93,7 @@ export function activatePowerUp(player, type) {
       break;
     case PowerUpType.MAGNET:
       player.magnetActive = true;
-      setTimeout(() => { player.magnetActive = false; }, cfg.duration);
+      player.magnetTimer = cfg.duration;
       break;
   }
   return true;

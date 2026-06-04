@@ -19,7 +19,9 @@ export class Player {
     // 道具背包系统（由 powerups.js 驱动）
     this.inventory = {};       // { type: count }
     this.speedBoosted = false;
+    this.speedTimer = 0;
     this.magnetActive = false;
+    this.magnetTimer = 0;
     this.bombRequested = false; // 标记是否需要清屏
   }
 
@@ -63,6 +65,26 @@ export class Player {
       if (this.spreadTimer <= 0) {
         this.spreadActive = false;
         this.spreadTimer = 0;
+        // 背包中还有散弹则保持持有态
+        this.hasSpreadPowerup = !!(this.inventory && this.inventory.spread && this.inventory.spread > 0);
+      }
+    }
+
+    // 加速计时器
+    if (this.speedBoosted) {
+      this.speedTimer -= deltaTime;
+      if (this.speedTimer <= 0) {
+        this.speedBoosted = false;
+        this.speedTimer = 0;
+      }
+    }
+
+    // 磁铁计时器
+    if (this.magnetActive) {
+      this.magnetTimer -= deltaTime;
+      if (this.magnetTimer <= 0) {
+        this.magnetActive = false;
+        this.magnetTimer = 0;
       }
     }
 
@@ -105,13 +127,6 @@ export class Player {
     return this.invincibleTime > 0;
   }
 
-  activateSpread() {
-    if (!this.hasSpreadPowerup || this.spreadActive) return;
-    this.hasSpreadPowerup = false;
-    this.spreadActive = true;
-    this.spreadTimer = CONFIG.POWERUP_DURATION;
-  }
-
   reset() {
     this.x = CONFIG.CANVAS_WIDTH / 2;
     this.y = CONFIG.CANVAS_HEIGHT - CONFIG.PLAYER_INITIAL_Y;
@@ -124,7 +139,9 @@ export class Player {
     this.hasSpreadPowerup = false;
     this.inventory = {};
     this.speedBoosted = false;
+    this.speedTimer = 0;
     this.magnetActive = false;
+    this.magnetTimer = 0;
     this.bombRequested = false;
   }
 }
