@@ -10,6 +10,6 @@ run = [ "pnpm", "run", "dev" ]
 deps = [ "git" ]
 
 [deploy]
-build = [ "pnpm", "run", "build" ]
+build = [ "bash", "-c", "pnpm install && pnpm run build" ]
 run = [ "pnpm", "run", "start" ]
 deps = [ "git" ]
