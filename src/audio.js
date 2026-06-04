@@ -59,6 +59,26 @@ export function playPowerUpSound() {
   }
 }
 
+// 玩家受伤音效（被敌人子弹击中 / 被敌人撞击）
+export function playDamageSound() {
+  try {
+    const ctx = getAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.2);
+  } catch (e) {
+    // 静默处理音频错误
+  }
+}
+
 export function playBossSound() {
   try {
     const ctx = getAudioContext();

@@ -2,7 +2,7 @@
 import { CONFIG, EnemyType } from './config.js';
 import { circleCollision } from './utils.js';
 import { spawnPowerUp } from './powerups.js';
-import { playHitSound } from './audio.js';
+import { playHitSound, playDamageSound } from './audio.js';
 
 export function checkCollisions(player, enemies, bosses, particles, powerups) {
   let scoreDelta = 0;
@@ -64,6 +64,7 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
       if (circleCollision(bullet, bullet.size, player, CONFIG.PLAYER_SIZE)) {
         player.takeDamage(1);
         bullet.active = false;
+        playDamageSound();
       }
     });
   });
@@ -74,6 +75,7 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
     if (player.isInvincible()) return;
     if (circleCollision(enemy, enemy.size, player, CONFIG.PLAYER_SIZE)) {
       player.takeDamage(1);
+      playDamageSound();
       const effect = enemy.takeDamage(1);
       if (effect) {
         if (effect === 'explosion') {
