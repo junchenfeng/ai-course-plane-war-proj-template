@@ -12,6 +12,8 @@ export class Player {
     this.invincibleTime = 0;
     this.active = true;
     this.bullets = [];
+    this.spreadActive = false;
+    this.spreadTimer = 0;
   }
 
   update(input, deltaTime) {
@@ -47,6 +49,15 @@ export class Player {
       this.shootCooldown -= deltaTime;
     }
 
+    // 散弹计时器
+    if (this.spreadActive) {
+      this.spreadTimer -= deltaTime;
+      if (this.spreadTimer <= 0) {
+        this.spreadActive = false;
+        this.spreadTimer = 0;
+      }
+    }
+
     // 射击
     if (input.shoot && this.shootCooldown <= 0) {
       this.shoot();
@@ -59,11 +70,17 @@ export class Player {
   }
 
   shoot() {
-    this.bullets.push(new Bullet(
-      this.x, this.y - CONFIG.PLAYER_SIZE,
-      0, -CONFIG.BULLET_SPEED,
-      BulletOwner.PLAYER, '#ffffff'
-    ));
+    const speed = CONFIG.BULLET_SPEED;
+    const angleRad = Math.PI / 180;
+
+    if (this.spreadActive) {
+      // 三发散弹：主弹道 + 左右各15度
+      this.bullets.push(new Bullet(this.x, this.y - CONFIG.PLAYER_SIZE, 0, -speed, BulletOwner.PLAYER, '#ffffff'));
+      this.bullets.push(new Bullet(this.x, this.y - CONFIG.PLAYER_SIZE, -speed * Math.sin(CONFIG.POWERUP_SPREAD_ANGLE * angleRad), -speed * Math.cos(CONFIG.POWERUP_SPREAD_ANGLE * angleRad), BulletOwner.PLAYER, '#88ccff'));
+      this.bullets.push(new Bullet(this.x, this.y - CONFIG.PLAYER_SIZE, speed * Math.sin(CONFIG.POWERUP_SPREAD_ANGLE * angleRad), -speed * Math.cos(CONFIG.POWERUP_SPREAD_ANGLE * angleRad), BulletOwner.PLAYER, '#88ccff'));
+    } else {
+      this.bullets.push(new Bullet(this.x, this.y - CONFIG.PLAYER_SIZE, 0, -speed, BulletOwner.PLAYER, '#ffffff'));
+    }
   }
 
   takeDamage(amount) {
@@ -80,6 +97,11 @@ export class Player {
     return this.invincibleTime > 0;
   }
 
+  activateSpread() {
+    this.spreadActive = true;
+    this.spreadTimer = CONFIG.POWERUP_DURATION;
+  }
+
   reset() {
     this.x = CONFIG.CANVAS_WIDTH / 2;
     this.y = CONFIG.CANVAS_HEIGHT - 80;
@@ -87,6 +109,8 @@ export class Player {
     this.active = true;
     this.bullets = [];
     this.invincibleTime = 0;
+    this.spreadActive = false;
+    this.spreadTimer = 0;
   }
 }
 

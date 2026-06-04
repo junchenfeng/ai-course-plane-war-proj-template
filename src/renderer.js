@@ -242,4 +242,39 @@ export class Renderer {
       ctx.globalAlpha = 1;
     });
   }
+
+  drawPowerUp(powerup) {
+    const ctx = this.ctx;
+    if (!powerup.active) return;
+    ctx.save();
+    ctx.translate(powerup.x, powerup.y);
+
+    // 外发光
+    ctx.beginPath();
+    ctx.arc(0, 0, powerup.size + 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(68, 136, 255, 0.2)';
+    ctx.fill();
+
+    // 主体菱形
+    ctx.beginPath();
+    ctx.moveTo(0, -powerup.size);
+    ctx.lineTo(powerup.size, 0);
+    ctx.lineTo(0, powerup.size);
+    ctx.lineTo(-powerup.size, 0);
+    ctx.closePath();
+    ctx.fillStyle = '#4488ff';
+    ctx.shadowColor = '#4488ff';
+    ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // 内部 S 标识
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `${powerup.size * 1.2}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('S', 0, 1);
+
+    ctx.restore();
+  }
 }

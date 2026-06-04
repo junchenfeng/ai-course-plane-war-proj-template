@@ -45,6 +45,13 @@ export const CONFIG = {
 
   // 粒子
   PARTICLE_LIFE: 50,
+
+  // 道具
+  POWERUP_DROP_RATE: 0.2,
+  POWERUP_DURATION: 10000,
+  POWERUP_SPREAD_ANGLE: 15,
+  POWERUP_SIZE: 12,
+  POWERUP_FALL_SPEED: 2,
 };
 
 // 关卡配置

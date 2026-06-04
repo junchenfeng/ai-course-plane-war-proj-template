@@ -9,6 +9,7 @@ import { InputHandler } from './input.js';
 import { UI } from './ui.js';
 import { LevelManager } from './levels.js';
 import { checkCollisions } from './collision.js';
+import { checkPowerUpCollisions } from './powerups.js';
 
 export class Game {
   constructor(canvas) {
@@ -22,6 +23,7 @@ export class Game {
     this.player = new Player();
     this.enemies = [];
     this.bosses = [];
+    this.powerups = [];
     this.score = 0;
     this.gameState = 'start'; // start, playing, gameover, win
     this.lastTime = 0;
@@ -45,6 +47,7 @@ export class Game {
     this.player.reset();
     this.enemies = [];
     this.bosses = [];
+    this.powerups = [];
     this.particles.clear();
     this.score = 0;
     this.gameState = 'playing';
@@ -94,12 +97,18 @@ export class Game {
 
     // 碰撞检测
     const allBosses = this.levelManager.boss ? [this.levelManager.boss] : [];
-    const scoreDelta = checkCollisions(this.player, this.enemies, allBosses, this.particles);
+    const scoreDelta = checkCollisions(this.player, this.enemies, allBosses, this.particles, this.powerups);
     this.score += scoreDelta;
+
+    // 更新道具
+    this.powerups.forEach(p => p.update());
+    this.powerups = this.powerups.filter(p => p.active);
+    checkPowerUpCollisions(this.player, this.powerups);
 
     // 更新 UI
     this.ui.updateHp(this.player.hp);
     this.ui.updateScore(this.score);
+    this.ui.updateSpreadIndicator(this.player.spreadActive);
     this.ui.updateEnemyCount(
       this.levelManager.spawnedCount,
       this.levelManager.totalEnemies
@@ -127,6 +136,7 @@ export class Game {
         this.player.reset();
         this.player.hp = CONFIG.PLAYER_HP;
         this.enemies = [];
+        this.powerups = [];
         this.particles.clear();
       } else if (this.levelManager.currentLevel === 2) {
         this.gameState = 'win';
@@ -145,6 +155,7 @@ export class Game {
         this.renderer.drawBoss(this.levelManager.boss);
       }
       this.renderer.drawParticles(this.particles.particles);
+      this.powerups.forEach(p => this.renderer.drawPowerUp(p));
     }
   }
 }

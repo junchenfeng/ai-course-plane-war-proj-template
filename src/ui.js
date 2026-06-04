@@ -13,6 +13,7 @@ export class UI {
     this.winScreen = document.getElementById('win-screen');
     this.finalScore = document.getElementById('final-score');
     this.winScore = document.getElementById('win-score');
+    this.spreadIndicator = document.getElementById('spread-indicator');
   }
 
   updateHp(hp) {
@@ -38,6 +39,15 @@ export class UI {
   updateEnemyCount(current, total) {
     if (!this.enemyCount) return;
     this.enemyCount.textContent = `敌人：${current}/${total}`;
+  }
+
+  updateSpreadIndicator(active) {
+    if (!this.spreadIndicator) return;
+    if (active) {
+      this.spreadIndicator.className = 'powerup-indicator active';
+    } else {
+      this.spreadIndicator.className = 'powerup-indicator';
+    }
   }
 
   showBossHp(boss) {

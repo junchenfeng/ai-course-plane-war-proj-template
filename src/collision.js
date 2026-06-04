@@ -1,8 +1,9 @@
 // 碰撞检测模块
 import { CONFIG, EnemyType } from './config.js';
 import { circleCollision } from './utils.js';
+import { spawnPowerUp } from './powerups.js';
 
-export function checkCollisions(player, enemies, bosses, particles) {
+export function checkCollisions(player, enemies, bosses, particles, powerups) {
   let scoreDelta = 0;
 
   // 玩家子弹 vs 敌人
@@ -19,10 +20,14 @@ export function checkCollisions(player, enemies, bosses, particles) {
           if (effect === 'explosion') {
             particles.createExplosion(enemy.x, enemy.y, '#ffff00');
             scoreDelta += CONFIG.YELLOW_SCORE;
+            const pu = spawnPowerUp(enemy.x, enemy.y);
+            if (pu) powerups.push(pu);
           }
           if (effect === 'flash') {
             particles.createFlash(enemy.x, enemy.y, '#44ff44');
             scoreDelta += CONFIG.GREEN_SCORE;
+            const pu = spawnPowerUp(enemy.x, enemy.y);
+            if (pu) powerups.push(pu);
           }
         }
       }
