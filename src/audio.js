@@ -1,6 +1,18 @@
 // 音频管理模块
 
 let audioCtx = null;
+let audioInitialized = false;
+
+export function initAudio() {
+  if (audioInitialized) return;
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  audioInitialized = true;
+}
 
 export function getAudioContext() {
   if (!audioCtx) {

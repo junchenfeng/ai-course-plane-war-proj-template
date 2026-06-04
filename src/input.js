@@ -1,4 +1,6 @@
 // 输入处理模块
+import { initAudio } from './audio.js';
+
 export class InputHandler {
   constructor(canvas) {
     this.up = false;
@@ -32,6 +34,7 @@ export class InputHandler {
   }
 
   _onKeyDown(e) {
+    initAudio();
     this.useMouse = false;
     switch (e.key.toLowerCase()) {
       case 'w': case 'arrowup': this.up = true; e.preventDefault(); break;
@@ -61,6 +64,7 @@ export class InputHandler {
   }
 
   _onMouseDown(e) {
+    initAudio();
     e.preventDefault();
     this.useMouse = true;
     this.mouseDown = true;
@@ -73,6 +77,7 @@ export class InputHandler {
   }
 
   _onTouchStart(e) {
+    initAudio();
     e.preventDefault();
     this.useMouse = true;
     const rect = e.target.getBoundingClientRect();
