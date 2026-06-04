@@ -11,6 +11,7 @@
 ├── index.html              # HTML 结构和 DOM 元素
 ├── package.json            # 依赖只有 vite
 ├── vite.config.js          # Vite 基础配置
+├── proj_assets/            # 项目预存资源
 ├── public/
 │   ├── images/             # 图片资源目录
 │   └── sounds/             # 音频资源目录
