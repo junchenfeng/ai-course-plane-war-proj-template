@@ -16,6 +16,7 @@ export default [
         Math: "readonly",
         console: "readonly",
         AudioContext: "readonly",
+        Image: "readonly",
       },
     },
     rules: {
