@@ -11,7 +11,7 @@ export class Boss {
     this.hp = CONFIG.BOSS_HP;
     this.maxHp = CONFIG.BOSS_HP;
     this.size = CONFIG.BOSS_SIZE;
-    this.shootCooldown = CONFIG.BOSS_SHOOT_INTERVAL;
+    this.shootCooldown = 0;
     this.burstCount = 0;
     this.burstCooldown = 0;
     this.isBursting = false;
@@ -56,16 +56,21 @@ export class Boss {
       }
     }
 
-    this.bullets.forEach(b => b.update(playerPos));
+    this.bullets.forEach(b => b.update());
     this.bullets = this.bullets.filter(b => b.active);
   }
 
   shootTrackingBullet(playerPos) {
+    // 发射时计算方向，之后子弹沿固定方向飞行
+    const dx = playerPos.x - this.x;
+    const dy = playerPos.y - this.y;
+    const mag = Math.sqrt(dx * dx + dy * dy) || 1;
+    const vx = (dx / mag) * CONFIG.BULLET_SPEED * 0.6;
+    const vy = (dy / mag) * CONFIG.BULLET_SPEED * 0.6;
     this.bullets.push(new Bullet(
       this.x, this.y + this.size,
-      0, CONFIG.BULLET_SPEED * 0.3,
-      BulletOwner.ENEMY_TRACKING, '#ff4444',
-      { x: playerPos.x, y: playerPos.y }
+      vx, vy,
+      BulletOwner.ENEMY, '#ff4444'
     ));
   }
 

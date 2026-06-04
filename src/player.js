@@ -132,16 +132,7 @@ export class Bullet {
     this.active = true;
   }
 
-  update(playerPos = null) {
-    // 追踪子弹
-    if (this.owner === BulletOwner.ENEMY_TRACKING && playerPos) {
-      const dx = playerPos.x - this.x;
-      const dy = playerPos.y - this.y;
-      const mag = Math.sqrt(dx * dx + dy * dy) || 1;
-      this.vx = (dx / mag) * CONFIG.BULLET_SPEED * 0.6;
-      this.vy = (dy / mag) * CONFIG.BULLET_SPEED * 0.6;
-    }
-
+  update() {
     this.x += this.vx;
     this.y += this.vy;
 
