@@ -14,6 +14,7 @@ export class Player {
     this.bullets = [];
     this.spreadActive = false;
     this.spreadTimer = 0;
+    this.hasSpreadPowerup = false;
   }
 
   update(input, deltaTime) {
@@ -98,6 +99,8 @@ export class Player {
   }
 
   activateSpread() {
+    if (!this.hasSpreadPowerup || this.spreadActive) return;
+    this.hasSpreadPowerup = false;
     this.spreadActive = true;
     this.spreadTimer = CONFIG.POWERUP_DURATION;
   }
@@ -111,6 +114,7 @@ export class Player {
     this.invincibleTime = 0;
     this.spreadActive = false;
     this.spreadTimer = 0;
+    this.hasSpreadPowerup = false;
   }
 }
 

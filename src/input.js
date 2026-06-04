@@ -10,18 +10,25 @@ export class InputHandler {
     this.mouseY = undefined;
     this.useMouse = false;
     this.mouseDown = false;
+    this.spreadTriggered = false;
 
     this._onKeyDown = this._onKeyDown.bind(this);
     this._onKeyUp = this._onKeyUp.bind(this);
     this._onMouseMove = this._onMouseMove.bind(this);
     this._onMouseDown = this._onMouseDown.bind(this);
     this._onMouseUp = this._onMouseUp.bind(this);
+    this._onTouchStart = this._onTouchStart.bind(this);
+    this._onTouchMove = this._onTouchMove.bind(this);
+    this._onTouchEnd = this._onTouchEnd.bind(this);
 
     window.addEventListener('keydown', this._onKeyDown);
     window.addEventListener('keyup', this._onKeyUp);
     canvas.addEventListener('mousemove', this._onMouseMove);
     canvas.addEventListener('mousedown', this._onMouseDown);
     canvas.addEventListener('mouseup', this._onMouseUp);
+    canvas.addEventListener('touchstart', this._onTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', this._onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', this._onTouchEnd);
   }
 
   _onKeyDown(e) {
@@ -32,6 +39,7 @@ export class InputHandler {
       case 'a': case 'arrowleft': this.left = true; e.preventDefault(); break;
       case 'd': case 'arrowright': this.right = true; e.preventDefault(); break;
       case ' ': this.shoot = true; e.preventDefault(); break;
+      case '1': this.spreadTriggered = true; e.preventDefault(); break;
     }
   }
 
@@ -62,6 +70,37 @@ export class InputHandler {
   _onMouseUp() {
     this.mouseDown = false;
     this.shoot = false;
+  }
+
+  _onTouchStart(e) {
+    e.preventDefault();
+    this.useMouse = true;
+    const rect = e.target.getBoundingClientRect();
+    const touch = e.touches[0];
+    this.mouseX = touch.clientX - rect.left;
+    this.mouseY = touch.clientY - rect.top;
+    this.shoot = true;
+  }
+
+  _onTouchMove(e) {
+    e.preventDefault();
+    this.useMouse = true;
+    const rect = e.target.getBoundingClientRect();
+    const touch = e.touches[0];
+    this.mouseX = touch.clientX - rect.left;
+    this.mouseY = touch.clientY - rect.top;
+  }
+
+  _onTouchEnd() {
+    this.shoot = false;
+  }
+
+  consumeSpreadTrigger() {
+    if (this.spreadTriggered) {
+      this.spreadTriggered = false;
+      return true;
+    }
+    return false;
   }
 
   destroy() {

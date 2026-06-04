@@ -65,13 +65,29 @@ body {
   font-weight: bold;
   background: rgba(0, 0, 0, 0.5);
   transition: all 0.3s;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
 }
 
-.powerup-indicator.active {
+.powerup-indicator.has-powerup {
   color: #4488ff;
   border-color: #4488ff;
   background: rgba(68, 136, 255, 0.15);
   box-shadow: 0 0 10px rgba(68, 136, 255, 0.4);
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+.powerup-indicator.active {
+  color: #44ff44;
+  border-color: #44ff44;
+  background: rgba(68, 255, 68, 0.15);
+  box-shadow: 0 0 10px rgba(68, 255, 68, 0.4);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(68, 136, 255, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(68, 136, 255, 0.7); }
 }
 
 /* 顶部 HUD */
@@ -181,4 +197,48 @@ body {
   background: #4488ff;
   color: #ffffff;
   box-shadow: 0 0 20px rgba(68, 136, 255, 0.5);
+}
+
+/* 右下角操作说明 */
+#controls-help {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* 关卡过渡 */
+#transition-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+#transition-screen .screen-content h1 {
+  font-size: 36px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 移动端道具图标放大 */
+@media (max-width: 768px), (pointer: coarse) {
+  .powerup-indicator {
+    padding: 6px 16px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
 }

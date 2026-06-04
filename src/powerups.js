@@ -33,7 +33,10 @@ export function checkPowerUpCollisions(player, powerups) {
   powerups.forEach(p => {
     if (!p.active) return;
     if (circleCollision(p, p.size, player, CONFIG.PLAYER_SIZE)) {
-      player.activateSpread();
+      // 道具触发式：拾取后存储，不自动激活；已持有时不叠加
+      if (!player.hasSpreadPowerup && !player.spreadActive) {
+        player.hasSpreadPowerup = true;
+      }
       p.active = false;
     }
   });

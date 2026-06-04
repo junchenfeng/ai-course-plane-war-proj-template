@@ -83,7 +83,11 @@ export class LevelManager {
     const aliveEnemies = enemies.filter(e => e.active && e.isAlive());
     if (aliveEnemies.length > 0) return false;
 
-    if (this.currentLevel === 2 && this.boss && this.boss.active && this.boss.isAlive()) return false;
+    // 第二关必须等 boss 出现并被击败
+    if (this.currentLevel === 2) {
+      if (!this.bossSpawned) return false;
+      if (this.boss && this.boss.active && this.boss.isAlive()) return false;
+    }
 
     this.levelComplete = true;
     return true;

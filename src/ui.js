@@ -1,6 +1,8 @@
 // UI 模块
 import { CONFIG } from './config.js';
 
+const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
+
 export class UI {
   constructor() {
     this.hpContainer = document.getElementById('hp-container');
@@ -11,9 +13,24 @@ export class UI {
     this.startScreen = document.getElementById('start-screen');
     this.gameOverScreen = document.getElementById('game-over-screen');
     this.winScreen = document.getElementById('win-screen');
+    this.transitionScreen = document.getElementById('transition-screen');
+    this.transitionText = document.getElementById('transition-text');
     this.finalScore = document.getElementById('final-score');
     this.winScore = document.getElementById('win-score');
+    this.winKills = document.getElementById('win-kills');
     this.spreadIndicator = document.getElementById('spread-indicator');
+    this.controlsHelp = document.getElementById('controls-help');
+
+    this._initControlsHelp();
+  }
+
+  _initControlsHelp() {
+    if (!this.controlsHelp) return;
+    if (isMobile) {
+      this.controlsHelp.textContent = '滑动移动 | 点击射击 | 点击道具图标触发散弹';
+    } else {
+      this.controlsHelp.textContent = 'WASD 移动 | 空格射击 | 数字1 触发散弹';
+    }
   }
 
   updateHp(hp) {
@@ -41,10 +58,12 @@ export class UI {
     this.enemyCount.textContent = `敌人：${current}/${total}`;
   }
 
-  updateSpreadIndicator(active) {
+  updateSpreadIndicator(active, hasPowerup) {
     if (!this.spreadIndicator) return;
     if (active) {
       this.spreadIndicator.className = 'powerup-indicator active';
+    } else if (hasPowerup) {
+      this.spreadIndicator.className = 'powerup-indicator has-powerup';
     } else {
       this.spreadIndicator.className = 'powerup-indicator';
     }
@@ -66,6 +85,7 @@ export class UI {
     if (this.startScreen) this.startScreen.style.display = 'flex';
     if (this.gameOverScreen) this.gameOverScreen.style.display = 'none';
     if (this.winScreen) this.winScreen.style.display = 'none';
+    if (this.transitionScreen) this.transitionScreen.style.display = 'none';
   }
 
   hideStartScreen() {
@@ -79,16 +99,31 @@ export class UI {
     }
   }
 
-  showWinScreen(score) {
+  showWinScreen(score, kills) {
     if (this.winScreen) {
       this.winScreen.style.display = 'flex';
       if (this.winScore) this.winScore.textContent = score;
+      if (this.winKills) this.winKills.textContent = kills;
     }
+  }
+
+  showTransitionScreen(levelName) {
+    if (this.transitionScreen) {
+      this.transitionScreen.style.display = 'flex';
+      if (this.transitionText) {
+        this.transitionText.textContent = `下一关：${levelName}`;
+      }
+    }
+  }
+
+  hideTransitionScreen() {
+    if (this.transitionScreen) this.transitionScreen.style.display = 'none';
   }
 
   hideAllScreens() {
     if (this.startScreen) this.startScreen.style.display = 'none';
     if (this.gameOverScreen) this.gameOverScreen.style.display = 'none';
     if (this.winScreen) this.winScreen.style.display = 'none';
+    if (this.transitionScreen) this.transitionScreen.style.display = 'none';
   }
 }

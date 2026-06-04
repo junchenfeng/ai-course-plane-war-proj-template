@@ -9,6 +9,7 @@ export default [
       globals: {
         window: "readonly",
         document: "readonly",
+        navigator: "readonly",
         requestAnimationFrame: "readonly",
         setInterval: "readonly",
         clearInterval: "readonly",

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>飞机大战</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
@@ -24,6 +24,9 @@
       <div id="enemy-count">敌人：0/0</div>
     </div>
 
+    <!-- 右下角操作说明 -->
+    <div id="controls-help">WASD 移动 | 空格射击 | 数字1 触发散弹</div>
+
     <!-- Boss HP -->
     <div id="boss-hp-container" style="display:none;">
       <div id="boss-hp-label">BOSS</div>
@@ -36,7 +39,7 @@
     <div id="start-screen">
       <div class="screen-content">
         <h1>✈ 飞机大战</h1>
-        <p>WASD 或鼠标移动 | 空格或点击射击</p>
+        <p>WASD 或鼠标移动 | 空格或点击射击 | 数字1 触发散弹</p>
         <button id="start-btn">开始游戏</button>
       </div>
     </div>
@@ -54,8 +57,16 @@
     <div id="win-screen" style="display:none;">
       <div class="screen-content">
         <h1>🎉 恭喜通关！</h1>
-        <p>得分：<span id="win-score">0</span></p>
+        <p>总得分：<span id="win-score">0</span></p>
+        <p>击坠数：<span id="win-kills">0</span></p>
         <button id="win-restart-btn">再来一局</button>
+      </div>
+    </div>
+
+    <!-- 关卡过渡 -->
+    <div id="transition-screen" style="display:none;">
+      <div class="screen-content">
+        <h1 id="transition-text">下一关：boss来了</h1>
       </div>
     </div>
 

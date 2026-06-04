@@ -5,6 +5,7 @@ import { spawnPowerUp } from './powerups.js';
 
 export function checkCollisions(player, enemies, bosses, particles, powerups) {
   let scoreDelta = 0;
+  let kills = 0;
 
   // 玩家子弹 vs 敌人
   player.bullets.forEach(bullet => {
@@ -20,12 +21,14 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
           if (effect === 'explosion') {
             particles.createExplosion(enemy.x, enemy.y, '#ffff00');
             scoreDelta += CONFIG.YELLOW_SCORE;
+            kills++;
             const pu = spawnPowerUp(enemy.x, enemy.y);
             if (pu) powerups.push(pu);
           }
           if (effect === 'flash') {
             particles.createFlash(enemy.x, enemy.y, '#44ff44');
             scoreDelta += CONFIG.GREEN_SCORE;
+            kills++;
             const pu = spawnPowerUp(enemy.x, enemy.y);
             if (pu) powerups.push(pu);
           }
@@ -42,6 +45,7 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
         if (effect === 'boss_explosion') {
           particles.createBossExplosion(boss.x, boss.y);
           scoreDelta += CONFIG.BOSS_SCORE;
+          kills++;
         }
       }
     });
@@ -72,18 +76,21 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
         if (effect === 'explosion') {
           particles.createExplosion(enemy.x, enemy.y, '#ffff00');
           scoreDelta += CONFIG.YELLOW_SCORE;
+          kills++;
         }
         if (effect === 'flash') {
           particles.createFlash(enemy.x, enemy.y, '#44ff44');
           scoreDelta += CONFIG.GREEN_SCORE;
+          kills++;
         }
         if (effect === 'boss_explosion') {
           particles.createBossExplosion(enemy.x, enemy.y);
           scoreDelta += CONFIG.BOSS_SCORE;
+          kills++;
         }
       }
     }
   });
 
-  return scoreDelta;
+  return { score: scoreDelta, kills };
 }

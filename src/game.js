@@ -25,10 +25,19 @@ export class Game {
     this.bosses = [];
     this.powerups = [];
     this.score = 0;
-    this.gameState = 'start'; // start, playing, gameover, win
+    this.killCount = 0;
+    this.gameState = 'start'; // start, playing, transitioning, gameover, win
     this.lastTime = 0;
 
+    // 关卡过渡动画
+    this.transitionPhase = 0; // 0=无, 1=飞向中间, 2=飞出屏幕, 3=黑屏等待
+    this.transitionTimer = 0;
+    this.transitionTargetLevel = 0;
+    this.transitionPlayerStartX = 0;
+    this.transitionPlayerStartY = 0;
+
     this._bindButtons();
+    this._bindPowerupClick();
     this.ui.showStartScreen();
     this._loop(0);
   }
@@ -43,6 +52,25 @@ export class Game {
     if (winRestartBtn) winRestartBtn.addEventListener('click', () => this.startGame());
   }
 
+  _bindPowerupClick() {
+    // 移动端点击道具图标触发散弹
+    const spreadEl = document.getElementById('spread-indicator');
+    if (spreadEl) {
+      spreadEl.addEventListener('click', () => {
+        if (this.gameState === 'playing' && this.player.hasSpreadPowerup) {
+          this.player.activateSpread();
+        }
+      });
+      // 触摸事件
+      spreadEl.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        if (this.gameState === 'playing' && this.player.hasSpreadPowerup) {
+          this.player.activateSpread();
+        }
+      });
+    }
+  }
+
   startGame() {
     this.player.reset();
     this.enemies = [];
@@ -50,11 +78,14 @@ export class Game {
     this.powerups = [];
     this.particles.clear();
     this.score = 0;
+    this.killCount = 0;
     this.gameState = 'playing';
+    this.transitionPhase = 0;
     this.levelManager.initLevel(1);
     this.ui.hideAllScreens();
     this.ui.updateLevel(1);
     this.ui.updateHp(this.player.hp);
+    this.ui.updateScore(0);
     this.ui.hideBossHp();
   }
 
@@ -64,6 +95,8 @@ export class Game {
 
     if (this.gameState === 'playing') {
       this._update(deltaTime);
+    } else if (this.gameState === 'transitioning') {
+      this._updateTransition(deltaTime);
     }
 
     this._render();
@@ -71,6 +104,11 @@ export class Game {
   }
 
   _update(deltaTime) {
+    // 散弹触发（键盘1）
+    if (this.input.consumeSpreadTrigger()) {
+      this.player.activateSpread();
+    }
+
     // 更新星空
     this.renderer.updateStars();
 
@@ -97,8 +135,9 @@ export class Game {
 
     // 碰撞检测
     const allBosses = this.levelManager.boss ? [this.levelManager.boss] : [];
-    const scoreDelta = checkCollisions(this.player, this.enemies, allBosses, this.particles, this.powerups);
+    const { score: scoreDelta, kills } = checkCollisions(this.player, this.enemies, allBosses, this.particles, this.powerups);
     this.score += scoreDelta;
+    this.killCount += kills;
 
     // 更新道具
     this.powerups.forEach(p => p.update());
@@ -108,7 +147,7 @@ export class Game {
     // 更新 UI
     this.ui.updateHp(this.player.hp);
     this.ui.updateScore(this.score);
-    this.ui.updateSpreadIndicator(this.player.spreadActive);
+    this.ui.updateSpreadIndicator(this.player.spreadActive, this.player.hasSpreadPowerup);
     this.ui.updateEnemyCount(
       this.levelManager.spawnedCount,
       this.levelManager.totalEnemies
@@ -131,16 +170,62 @@ export class Game {
     // 关卡完成
     if (this.levelManager.checkLevelComplete(this.enemies)) {
       if (this.levelManager.currentLevel === 1) {
-        this.levelManager.initLevel(2);
-        this.ui.updateLevel(2);
+        // 开始过渡动画
+        this._startTransition(2);
+      } else if (this.levelManager.currentLevel === 2) {
+        this.gameState = 'win';
+        this.ui.showWinScreen(this.score, this.killCount);
+      }
+    }
+  }
+
+  _startTransition(nextLevel) {
+    this.gameState = 'transitioning';
+    this.transitionPhase = 1;
+    this.transitionTimer = 0;
+    this.transitionTargetLevel = nextLevel;
+    this.transitionPlayerStartX = this.player.x;
+    this.transitionPlayerStartY = this.player.y;
+  }
+
+  _updateTransition(deltaTime) {
+    this.transitionTimer += deltaTime;
+
+    if (this.transitionPhase === 1) {
+      // 飞向屏幕中间
+      const centerX = CONFIG.CANVAS_WIDTH / 2;
+      const centerY = CONFIG.CANVAS_HEIGHT / 2;
+      const t = Math.min(this.transitionTimer / 800, 1);
+      this.player.x = this.transitionPlayerStartX + (centerX - this.transitionPlayerStartX) * t;
+      this.player.y = this.transitionPlayerStartY + (centerY - this.transitionPlayerStartY) * t;
+
+      if (t >= 1) {
+        this.transitionPhase = 2;
+        this.transitionTimer = 0;
+      }
+    } else if (this.transitionPhase === 2) {
+      // 向上飞出屏幕
+      const t = Math.min(this.transitionTimer / 600, 1);
+      this.player.y = CONFIG.CANVAS_HEIGHT / 2 - t * (CONFIG.CANVAS_HEIGHT / 2 + 100);
+
+      if (t >= 1) {
+        this.transitionPhase = 3;
+        this.transitionTimer = 0;
+      }
+    } else if (this.transitionPhase === 3) {
+      // 黑屏等待，显示下一关提示
+      if (this.transitionTimer > 1500) {
+        // 进入下一关
+        this.gameState = 'playing';
+        this.transitionPhase = 0;
+        this.levelManager.initLevel(this.transitionTargetLevel);
+        this.ui.updateLevel(this.transitionTargetLevel);
         this.player.reset();
         this.player.hp = CONFIG.PLAYER_HP;
         this.enemies = [];
         this.powerups = [];
         this.particles.clear();
-      } else if (this.levelManager.currentLevel === 2) {
-        this.gameState = 'win';
-        this.ui.showWinScreen(this.score);
+        this.ui.hideTransitionScreen();
       }
     }
   }
@@ -156,6 +241,24 @@ export class Game {
       }
       this.renderer.drawParticles(this.particles.particles);
       this.powerups.forEach(p => this.renderer.drawPowerUp(p));
+    } else if (this.gameState === 'transitioning') {
+      // 过渡动画中绘制玩家
+      this.renderer.drawPlayer(this.player);
+      this.renderer.drawParticles(this.particles.particles);
+
+      // 黑屏遮罩
+      if (this.transitionPhase >= 3) {
+        const ctx = this.renderer.ctx;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+
+        const levelNames = { 2: 'boss来了' };
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 32px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`下一关：${levelNames[this.transitionTargetLevel]}`, CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2);
+        ctx.textAlign = 'start';
+      }
     }
   }
 }
