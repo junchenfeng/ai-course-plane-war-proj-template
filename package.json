@@ -9,6 +9,7 @@
     "start": "npx serve dist -l 5000 --no-clipboard",
     "lint": "eslint src/",
     "lint:all": "eslint src/",
+    "lint:build": "eslint src/",
     "ts-check": "echo 'no ts-check needed (pure JS project)'"
   },
   "dependencies": {
