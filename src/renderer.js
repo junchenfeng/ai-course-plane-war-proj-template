@@ -93,8 +93,11 @@ export class Renderer {
       const x = player.x - size / 2;
       const y = player.y - size / 2;
       
-      ctx.shadowColor = '#8844ff';
-      ctx.shadowBlur = 20;
+      // 添加发光效果（只在图片非透明区域）
+      ctx.shadowColor = '#aa66ff';
+      ctx.shadowBlur = 25;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
       ctx.drawImage(this.playerImage, x, y, size, size);
       ctx.shadowBlur = 0;
     } else {
