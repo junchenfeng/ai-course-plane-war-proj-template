@@ -1,8 +1,23 @@
 // 碰撞检测模块
-import { CONFIG, EnemyType } from './config.js';
+import { CONFIG } from './config.js';
 import { circleCollision } from './utils.js';
 import { spawnPowerUp } from './powerups.js';
 import { playHitSound, playDamageSound } from './audio.js';
+
+function handleKill(enemy, particles, powerups) {
+  const effect = enemy.takeDamage(CONFIG.PLAYER_BULLET_DAMAGE);
+  if (!effect) return null;
+  if (effect === 'explosion') {
+    particles.createExplosion(enemy.x, enemy.y, '#ffff00');
+  } else if (effect === 'flash') {
+    particles.createFlash(enemy.x, enemy.y, '#44ff44');
+  } else if (effect === 'boss_explosion') {
+    particles.createBossExplosion(enemy.x, enemy.y);
+  }
+  const pu = spawnPowerUp(enemy.x, enemy.y);
+  if (pu) powerups.push(pu);
+  return effect;
+}
 
 export function checkCollisions(player, enemies, bosses, particles, powerups) {
   let scoreDelta = 0;
@@ -16,24 +31,12 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
     enemies.forEach(enemy => {
       if (!enemy.active || !enemy.isAlive()) return;
       if (circleCollision(bullet, bullet.size, enemy, enemy.size)) {
-        const effect = enemy.takeDamage(1);
+        const effect = handleKill(enemy, particles, powerups);
         bullet.active = false;
         playHitSound();
         if (effect) {
-          if (effect === 'explosion') {
-            particles.createExplosion(enemy.x, enemy.y, '#ffff00');
-            scoreDelta += CONFIG.YELLOW_SCORE;
-            kills++;
-            const pu = spawnPowerUp(enemy.x, enemy.y);
-            if (pu) powerups.push(pu);
-          }
-          if (effect === 'flash') {
-            particles.createFlash(enemy.x, enemy.y, '#44ff44');
-            scoreDelta += CONFIG.GREEN_SCORE;
-            kills++;
-            const pu = spawnPowerUp(enemy.x, enemy.y);
-            if (pu) powerups.push(pu);
-          }
+          scoreDelta += effect === 'explosion' ? CONFIG.YELLOW_SCORE : CONFIG.GREEN_SCORE;
+          kills++;
         }
       }
     });
@@ -42,11 +45,10 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
     bosses.forEach(boss => {
       if (!boss.active || !boss.isAlive()) return;
       if (circleCollision(bullet, bullet.size, boss, boss.size)) {
-        const effect = boss.takeDamage(1);
+        const effect = handleKill(boss, particles, powerups);
         bullet.active = false;
         playHitSound();
         if (effect === 'boss_explosion') {
-          particles.createBossExplosion(boss.x, boss.y);
           scoreDelta += CONFIG.BOSS_SCORE;
           kills++;
         }
@@ -62,7 +64,7 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
       if (!bullet.active) return;
       if (player.isInvincible()) return;
       if (circleCollision(bullet, bullet.size, player, CONFIG.PLAYER_SIZE)) {
-        player.takeDamage(1);
+        player.takeDamage(CONFIG.ENEMY_BULLET_DAMAGE);
         bullet.active = false;
         playDamageSound();
       }
@@ -74,25 +76,18 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
     if (!enemy.active || !enemy.isAlive()) return;
     if (player.isInvincible()) return;
     if (circleCollision(enemy, enemy.size, player, CONFIG.PLAYER_SIZE)) {
-      player.takeDamage(1);
+      player.takeDamage(CONFIG.ENEMY_COLLISION_DAMAGE);
       playDamageSound();
-      const effect = enemy.takeDamage(1);
-      if (effect) {
-        if (effect === 'explosion') {
-          particles.createExplosion(enemy.x, enemy.y, '#ffff00');
-          scoreDelta += CONFIG.YELLOW_SCORE;
-          kills++;
-        }
-        if (effect === 'flash') {
-          particles.createFlash(enemy.x, enemy.y, '#44ff44');
-          scoreDelta += CONFIG.GREEN_SCORE;
-          kills++;
-        }
-        if (effect === 'boss_explosion') {
-          particles.createBossExplosion(enemy.x, enemy.y);
-          scoreDelta += CONFIG.BOSS_SCORE;
-          kills++;
-        }
+      const effect = handleKill(enemy, particles, powerups);
+      if (effect === 'explosion') {
+        scoreDelta += CONFIG.YELLOW_SCORE;
+        kills++;
+      } else if (effect === 'flash') {
+        scoreDelta += CONFIG.GREEN_SCORE;
+        kills++;
+      } else if (effect === 'boss_explosion') {
+        scoreDelta += CONFIG.BOSS_SCORE;
+        kills++;
       }
     }
   });

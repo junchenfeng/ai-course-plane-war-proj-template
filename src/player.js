@@ -5,7 +5,7 @@ import { clamp } from './utils.js';
 export class Player {
   constructor() {
     this.x = CONFIG.CANVAS_WIDTH / 2;
-    this.y = CONFIG.CANVAS_HEIGHT - 80;
+    this.y = CONFIG.CANVAS_HEIGHT - CONFIG.PLAYER_INITIAL_Y;
     this.hp = CONFIG.PLAYER_HP;
     this.maxHp = CONFIG.PLAYER_HP;
     this.shootCooldown = 0;
@@ -15,6 +15,12 @@ export class Player {
     this.spreadActive = false;
     this.spreadTimer = 0;
     this.hasSpreadPowerup = false;
+
+    // 道具背包系统（由 powerups.js 驱动）
+    this.inventory = {};       // { type: count }
+    this.speedBoosted = false;
+    this.magnetActive = false;
+    this.bombRequested = false; // 标记是否需要清屏
   }
 
   update(input, deltaTime) {
@@ -24,22 +30,23 @@ export class Player {
     }
 
     // 移动
+    const speed = this.speedBoosted ? CONFIG.PLAYER_SPEED * 1.4 : CONFIG.PLAYER_SPEED;
     if (input.useMouse && input.mouseX !== undefined && input.mouseY !== undefined) {
       const dx = input.mouseX - this.x;
       const dy = input.mouseY - this.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > CONFIG.PLAYER_SPEED) {
-        this.x += (dx / dist) * CONFIG.PLAYER_SPEED;
+      if (dist > speed) {
+        this.x += (dx / dist) * speed;
         this.y += (dy / dist) * CONFIG.PLAYER_SPEED;
       } else {
         this.x = input.mouseX;
         this.y = input.mouseY;
       }
     } else {
-      if (input.up) this.y -= CONFIG.PLAYER_SPEED;
-      if (input.down) this.y += CONFIG.PLAYER_SPEED;
-      if (input.left) this.x -= CONFIG.PLAYER_SPEED;
-      if (input.right) this.x += CONFIG.PLAYER_SPEED;
+      if (input.up) this.y -= speed;
+      if (input.down) this.y += speed;
+      if (input.left) this.x -= speed;
+      if (input.right) this.x += speed;
     }
 
     this.x = clamp(this.x, CONFIG.PLAYER_SIZE, CONFIG.CANVAS_WIDTH - CONFIG.PLAYER_SIZE);
@@ -107,7 +114,7 @@ export class Player {
 
   reset() {
     this.x = CONFIG.CANVAS_WIDTH / 2;
-    this.y = CONFIG.CANVAS_HEIGHT - 80;
+    this.y = CONFIG.CANVAS_HEIGHT - CONFIG.PLAYER_INITIAL_Y;
     this.hp = CONFIG.PLAYER_HP;
     this.active = true;
     this.bullets = [];
@@ -115,6 +122,10 @@ export class Player {
     this.spreadActive = false;
     this.spreadTimer = 0;
     this.hasSpreadPowerup = false;
+    this.inventory = {};
+    this.speedBoosted = false;
+    this.magnetActive = false;
+    this.bombRequested = false;
   }
 }
 

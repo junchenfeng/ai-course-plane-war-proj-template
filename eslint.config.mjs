@@ -13,9 +13,12 @@ export default [
         requestAnimationFrame: "readonly",
         setInterval: "readonly",
         clearInterval: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
         Math: "readonly",
         console: "readonly",
         AudioContext: "readonly",
+        Image: "readonly",
       },
     },
     rules: {

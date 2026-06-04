@@ -1,5 +1,5 @@
 // 游戏主循环模块
-import { CONFIG, EnemyType } from './config.js';
+import { CONFIG } from './config.js';
 import { Player } from './player.js';
 import { Enemy } from './enemies.js';
 import { Boss } from './boss.js';
@@ -9,7 +9,8 @@ import { InputHandler } from './input.js';
 import { UI } from './ui.js';
 import { LevelManager } from './levels.js';
 import { checkCollisions } from './collision.js';
-import { checkPowerUpCollisions } from './powerups.js';
+import { PowerUpType } from './config.js';
+import { checkPowerUpCollisions, activatePowerUp } from './powerups.js';
 
 export class Game {
   constructor(canvas) {
@@ -22,7 +23,6 @@ export class Game {
 
     this.player = new Player();
     this.enemies = [];
-    this.bosses = [];
     this.powerups = [];
     this.score = 0;
     this.killCount = 0;
@@ -53,19 +53,25 @@ export class Game {
   }
 
   _bindPowerupClick() {
-    // 移动端点击道具图标触发散弹
+    // 移动端点击道具图标触发背包中的道具
     const spreadEl = document.getElementById('spread-indicator');
     if (spreadEl) {
       spreadEl.addEventListener('click', () => {
-        if (this.gameState === 'playing' && this.player.hasSpreadPowerup) {
-          this.player.activateSpread();
+        if (this.gameState === 'playing') {
+          // 按优先级激活背包中的道具
+          activatePowerUp(this.player, PowerUpType.SPREAD) ||
+          activatePowerUp(this.player, PowerUpType.SPEED) ||
+          activatePowerUp(this.player, PowerUpType.BOMB) ||
+          activatePowerUp(this.player, PowerUpType.MAGNET);
         }
       });
-      // 触摸事件
       spreadEl.addEventListener('touchend', (e) => {
         e.preventDefault();
-        if (this.gameState === 'playing' && this.player.hasSpreadPowerup) {
-          this.player.activateSpread();
+        if (this.gameState === 'playing') {
+          activatePowerUp(this.player, PowerUpType.SPREAD) ||
+          activatePowerUp(this.player, PowerUpType.SPEED) ||
+          activatePowerUp(this.player, PowerUpType.BOMB) ||
+          activatePowerUp(this.player, PowerUpType.MAGNET);
         }
       });
     }
@@ -74,7 +80,6 @@ export class Game {
   startGame() {
     this.player.reset();
     this.enemies = [];
-    this.bosses = [];
     this.powerups = [];
     this.particles.clear();
     this.score = 0;
@@ -104,9 +109,12 @@ export class Game {
   }
 
   _update(deltaTime) {
-    // 散弹触发（键盘1）
+    // 道具触发（键盘1-4）
     if (this.input.consumeSpreadTrigger()) {
-      this.player.activateSpread();
+      activatePowerUp(this.player, PowerUpType.SPREAD) ||
+      activatePowerUp(this.player, PowerUpType.SPEED) ||
+      activatePowerUp(this.player, PowerUpType.BOMB) ||
+      activatePowerUp(this.player, PowerUpType.MAGNET);
     }
 
     // 更新星空
@@ -143,6 +151,18 @@ export class Game {
     this.powerups.forEach(p => p.update());
     this.powerups = this.powerups.filter(p => p.active);
     checkPowerUpCollisions(this.player, this.powerups);
+
+    // 炸弹清屏（清除所有敌人子弹）
+    if (this.player.bombRequested) {
+      this.player.bombRequested = false;
+      this.enemies.forEach(e => { e.bullets = []; });
+      if (this.levelManager.boss && this.levelManager.boss.active) {
+        this.levelManager.boss.bullets = [];
+      }
+      // 炸弹粒子特效
+      this.particles.createExplosion(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, '#ff4444', 60);
+      this.score += 50; // 炸弹奖励分
+    }
 
     // 更新 UI
     this.ui.updateHp(this.player.hp);
@@ -195,7 +215,7 @@ export class Game {
       // 飞向屏幕中间
       const centerX = CONFIG.CANVAS_WIDTH / 2;
       const centerY = CONFIG.CANVAS_HEIGHT / 2;
-      const t = Math.min(this.transitionTimer / 800, 1);
+      const t = Math.min(this.transitionTimer / CONFIG.TRANSITION_FADE_IN, 1);
       this.player.x = this.transitionPlayerStartX + (centerX - this.transitionPlayerStartX) * t;
       this.player.y = this.transitionPlayerStartY + (centerY - this.transitionPlayerStartY) * t;
 
@@ -205,7 +225,7 @@ export class Game {
       }
     } else if (this.transitionPhase === 2) {
       // 向上飞出屏幕
-      const t = Math.min(this.transitionTimer / 600, 1);
+      const t = Math.min(this.transitionTimer / CONFIG.TRANSITION_DISPLAY, 1);
       this.player.y = CONFIG.CANVAS_HEIGHT / 2 - t * (CONFIG.CANVAS_HEIGHT / 2 + 100);
 
       if (t >= 1) {
@@ -214,7 +234,7 @@ export class Game {
       }
     } else if (this.transitionPhase === 3) {
       // 黑屏等待，显示下一关提示
-      if (this.transitionTimer > 1500) {
+      if (this.transitionTimer > CONFIG.TRANSITION_FADE_OUT) {
         // 进入下一关
         this.gameState = 'playing';
         this.transitionPhase = 0;
@@ -249,10 +269,10 @@ export class Game {
       // 黑屏遮罩
       if (this.transitionPhase >= 3) {
         const ctx = this.renderer.ctx;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.fillStyle = `rgba(0, 0, 0, ${CONFIG.TRANSITION_OVERLAY_ALPHA})`;
         ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
 
-        const levelNames = { 2: 'boss来了' };
+        const levelNames = CONFIG.LEVEL_NAMES;
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 32px Arial';
         ctx.textAlign = 'center';

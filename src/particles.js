@@ -1,4 +1,5 @@
 // 粒子效果模块
+import { CONFIG } from './config.js';
 import { randomRange, randomColor } from './utils.js';
 
 class Particle {
@@ -28,8 +29,7 @@ export class ParticleSystem {
     this.particles = [];
   }
 
-  createExplosion(x, y, color = '#ffff00') {
-    const count = 20;
+  createExplosion(x, y, color = '#ffff00', count = CONFIG.PARTICLE_EXPLOSION_COUNT) {
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count;
       const speed = randomRange(2, 5);

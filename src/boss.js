@@ -7,7 +7,7 @@ export class Boss {
   constructor() {
     this.type = EnemyType.RED_BOSS;
     this.x = randomRange(80, CONFIG.CANVAS_WIDTH - 80);
-    this.y = -60;
+    this.y = CONFIG.BOSS_ENTRY_Y;
     this.hp = CONFIG.BOSS_HP;
     this.maxHp = CONFIG.BOSS_HP;
     this.size = CONFIG.BOSS_SIZE;
@@ -24,15 +24,15 @@ export class Boss {
 
   update(playerPos, deltaTime) {
     if (this.isDying) {
-      this.scaleAnimation -= 0.02;
+      this.scaleAnimation -= CONFIG.BOSS_SCALE_RATE;
       this.deathTimer -= deltaTime;
       if (this.scaleAnimation <= 0) this.active = false;
       return;
     }
 
     // 移动到屏幕 1/4 位置
-    if (this.y < CONFIG.CANVAS_HEIGHT / 4) {
-      this.y += 0.5;
+    if (this.y < CONFIG.CANVAS_HEIGHT / CONFIG.BOSS_STOP_Y_RATIO) {
+      this.y += CONFIG.BOSS_MOVE_SPEED;
     }
 
     // 射击逻辑
@@ -65,8 +65,8 @@ export class Boss {
     const dx = playerPos.x - this.x;
     const dy = playerPos.y - this.y;
     const mag = Math.sqrt(dx * dx + dy * dy) || 1;
-    const vx = (dx / mag) * CONFIG.BULLET_SPEED * 0.6;
-    const vy = (dy / mag) * CONFIG.BULLET_SPEED * 0.6;
+    const vx = (dx / mag) * CONFIG.BULLET_SPEED * CONFIG.BOSS_BULLET_SPEED_MULT;
+    const vy = (dy / mag) * CONFIG.BULLET_SPEED * CONFIG.BOSS_BULLET_SPEED_MULT;
     this.bullets.push(new Bullet(
       this.x, this.y + this.size,
       vx, vy,
@@ -79,7 +79,7 @@ export class Boss {
     if (this.hp <= 0) {
       this.hp = 0;
       this.isDying = true;
-      this.deathTimer = 500;
+      this.deathTimer = CONFIG.BOSS_DEATH_TIMER;
       return 'boss_explosion';
     }
     return null;

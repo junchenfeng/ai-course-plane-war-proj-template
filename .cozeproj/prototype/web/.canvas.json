@@ -1,0 +1,12 @@
+{
+  "elements": [
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/shop.html"
+      },
+      "title": "道具商城",
+      "size": "web"
+    }
+  ]
+}

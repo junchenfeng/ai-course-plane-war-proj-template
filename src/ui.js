@@ -56,7 +56,7 @@ export class UI {
 
   updateLevel(level) {
     if (!this.levelDisplay) return;
-    const names = { 1: '测试关', 2: 'boss来了' };
+    const names = CONFIG.LEVEL_NAMES;
     this.levelDisplay.textContent = `第${level}关：${names[level] || ''}`;
   }
 

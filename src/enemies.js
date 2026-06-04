@@ -35,14 +35,14 @@ export class Enemy {
       this.deathTimer -= deltaTime;
       if (this.type === EnemyType.GREEN_ARROW) {
         this.flashTimer += deltaTime;
-        if (this.flashTimer > 50) this.flashTimer = 0;
+        if (this.flashTimer > CONFIG.ENEMY_FLASH_DURATION) this.flashTimer = 0;
       }
       if (this.deathTimer <= 0) this.active = false;
       return;
     }
 
     if (this.type === EnemyType.YELLOW_CIRCLE) {
-      this.y += 1;
+      this.y += CONFIG.ENEMY_FALL_SPEED_YELLOW;
       this.shootCooldown -= deltaTime;
       if (this.shootCooldown <= 0) {
         this.shootDownwards();
@@ -55,11 +55,11 @@ export class Enemy {
       if (dir.vy > 0) {
         this.y += dir.vy * CONFIG.GREEN_ENEMY_TRACKING_SPEED;
       } else {
-        this.y += 0.5;
+        this.y += CONFIG.ENEMY_FALL_SPEED_GREEN;
       }
     }
 
-    if (this.y > CONFIG.CANVAS_HEIGHT + 50) {
+    if (this.y > CONFIG.CANVAS_HEIGHT + CONFIG.ENEMY_REMOVE_OFFSET) {
       this.active = false;
     }
 
@@ -80,7 +80,7 @@ export class Enemy {
     if (this.hp <= 0) {
       this.hp = 0;
       this.isDying = true;
-      this.deathTimer = 300;
+      this.deathTimer = CONFIG.ENEMY_DEATH_TIMER;
       if (this.type === EnemyType.YELLOW_CIRCLE) return 'explosion';
       if (this.type === EnemyType.GREEN_ARROW) return 'flash';
     }

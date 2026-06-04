@@ -15,7 +15,7 @@ export class Renderer {
   }
 
   initStars() {
-    const count = Math.floor((CONFIG.CANVAS_WIDTH * CONFIG.CANVAS_HEIGHT) / 3200);
+    const count = Math.floor((CONFIG.CANVAS_WIDTH * CONFIG.CANVAS_HEIGHT) / CONFIG.STAR_COUNT_DIVISOR);
     for (let i = 0; i < count; i++) {
       const isLarge = Math.random() < 0.1;
       this.stars.push({
@@ -32,7 +32,7 @@ export class Renderer {
   updateStars() {
     this.stars.forEach(s => {
       s.twinklePhase += s.twinkleSpeed;
-      s.y += 0.2;
+      s.y += CONFIG.STAR_SPEED;
       if (s.y > CONFIG.CANVAS_HEIGHT) {
         s.y = 0;
         s.x = Math.random() * CONFIG.CANVAS_WIDTH;
@@ -42,7 +42,7 @@ export class Renderer {
 
   draw() {
     const ctx = this.ctx;
-    ctx.fillStyle = '#0a0a0a';
+    ctx.fillStyle = CONFIG.BG_COLOR;
     ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
     this.drawStars();
   }
@@ -79,8 +79,8 @@ export class Renderer {
     ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
     ctx.lineTo(CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
     ctx.closePath();
-    ctx.fillStyle = '#4488ff';
-    ctx.shadowColor = '#4488ff';
+    ctx.fillStyle = CONFIG.PLAYER_COLOR;
+    ctx.shadowColor = CONFIG.PLAYER_COLOR;
     ctx.shadowBlur = 15;
     ctx.fill();
 
@@ -90,7 +90,7 @@ export class Renderer {
     ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
     ctx.lineTo(CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
     ctx.closePath();
-    ctx.fillStyle = '#66aaff';
+    ctx.fillStyle = CONFIG.PLAYER_COLOR_LIGHT;
     ctx.fill();
     ctx.shadowBlur = 0;
 

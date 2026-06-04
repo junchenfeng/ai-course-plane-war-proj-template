@@ -72,10 +72,6 @@ export class LevelManager {
     }
   }
 
-  getActiveEnemyCount(enemies) {
-    return enemies.filter(e => e.active && e.isAlive()).length;
-  }
-
   checkLevelComplete(enemies) {
     if (this.levelComplete) return false;
     if (this.enemiesToSpawn.length > 0) return false;
