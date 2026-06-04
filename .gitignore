@@ -53,6 +53,9 @@ output.log
 *.log.*
 logs/
 
+# 用户生成/上传的临时内容
+tmp/
+
 # 视频文件
 *.mp4
 *.avi
