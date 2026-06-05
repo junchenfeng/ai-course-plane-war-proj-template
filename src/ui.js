@@ -29,15 +29,18 @@ export class UI {
     const moveEl = document.getElementById('help-move');
     const shootEl = document.getElementById('help-shoot');
     const spreadEl = document.getElementById('help-spread');
-    if (!moveEl || !shootEl || !spreadEl) return;
+    const bombEl = document.getElementById('help-bomb');
+    if (!moveEl || !shootEl || !spreadEl || !bombEl) return;
     if (isMobile) {
       moveEl.textContent = '滑动';
       shootEl.textContent = '点击';
       spreadEl.textContent = '点击图标';
+      bombEl.textContent = '点击图标';
     } else {
       moveEl.textContent = 'WASD';
       shootEl.textContent = '空格';
       spreadEl.textContent = '数字1';
+      bombEl.textContent = '数字2';
     }
   }
 

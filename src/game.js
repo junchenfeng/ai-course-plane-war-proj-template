@@ -106,9 +106,11 @@ export class Game {
   }
 
   _update(deltaTime) {
-    // 道具触发（键盘1）
+    // 可储存道具数字键激活：1=散弹, 2=炸弹（与 input.js 按键绑定对应）
     if (this.input.consumeSpreadTrigger()) {
-      activatePowerUp(this.player, PowerUpType.SPREAD) ||
+      activatePowerUp(this.player, PowerUpType.SPREAD);
+    }
+    if (this.input.consumeBombTrigger()) {
       activatePowerUp(this.player, PowerUpType.BOMB);
     }
 

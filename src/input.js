@@ -12,7 +12,9 @@ export class InputHandler {
     this.mouseY = undefined;
     this.useMouse = false;
     this.mouseDown = false;
+    // 可储存道具数字键绑定：1=散弹, 2=炸弹（与 POWERUP_CONFIGS 中 isActivable 道具对应）
     this.spreadTriggered = false;
+    this.bombTriggered = false;
 
     this._onKeyDown = this._onKeyDown.bind(this);
     this._onKeyUp = this._onKeyUp.bind(this);
@@ -43,6 +45,7 @@ export class InputHandler {
       case 'd': case 'arrowright': this.right = true; e.preventDefault(); break;
       case ' ': this.shoot = true; e.preventDefault(); break;
       case '1': this.spreadTriggered = true; e.preventDefault(); break;
+      case '2': this.bombTriggered = true; e.preventDefault(); break;
     }
   }
 
@@ -103,6 +106,14 @@ export class InputHandler {
   consumeSpreadTrigger() {
     if (this.spreadTriggered) {
       this.spreadTriggered = false;
+      return true;
+    }
+    return false;
+  }
+
+  consumeBombTrigger() {
+    if (this.bombTriggered) {
+      this.bombTriggered = false;
       return true;
     }
     return false;

@@ -77,7 +77,7 @@ export const CONFIG = {
   STAR_TWINKLE_SPEED: 0.003,
 
   // ===== 道具 =====
-  POWERUP_DROP_RATE: 0.05,
+  POWERUP_DROP_RATE: 0.25,
   POWERUP_SPREAD_ANGLE: 15,
   POWERUP_SIZE: 12,
   POWERUP_FALL_SPEED: 2,
@@ -141,6 +141,7 @@ export const BulletOwner = {
 
 // ===== 道具类型（可扩展注册表） =====
 // 新增道具只需在此追加一条 definition 即可，无需改动碰撞/渲染逻辑
+// ⚠️ 数字键绑定：散弹=数字1, 炸弹=数字2（与 input.js 中 keydown case 对应，新增道具需同步更新 input.js 和 game.js）
 
 export const PowerUpType = {
   SPREAD: 'spread',   // 可储存状态道具：激活后持续发射散弹

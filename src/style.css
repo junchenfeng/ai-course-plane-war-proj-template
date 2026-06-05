@@ -93,6 +93,20 @@ body {
   animation: flash-blink 0.5s ease-in-out infinite;
 }
 
+.key-badge {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  margin-right: 4px;
+}
+
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 12px rgba(68, 136, 255, 0.5); }
   50% { box-shadow: 0 0 24px rgba(68, 136, 255, 0.8); }
