@@ -11,6 +11,7 @@ import { LevelManager } from './levels.js';
 import { checkCollisions } from './collision.js';
 import { PowerUpType } from './config.js';
 import { checkPowerUpCollisions, activatePowerUp } from './powerups.js';
+import { initBGM, playBGM, stopBGM, toggleBGM, isBGMEnabled } from './audio.js';
 
 export class Game {
   constructor(canvas) {
@@ -38,8 +39,39 @@ export class Game {
 
     this._bindButtons();
     this._bindPowerupClick();
+    this._bindMusicToggle();
     this.ui.showStartScreen();
     this._loop(0);
+  }
+
+  _bindMusicToggle() {
+    const musicBtn = document.getElementById('music-toggle');
+    const musicIcon = document.getElementById('music-icon');
+    
+    // 初始化按钮状态
+    initBGM();
+    
+    if (musicBtn) {
+      // 根据当前状态设置初始样式
+      if (isBGMEnabled()) {
+        musicBtn.classList.remove('muted');
+        if (musicIcon) musicIcon.textContent = '🔊';
+      } else {
+        musicBtn.classList.add('muted');
+        if (musicIcon) musicIcon.textContent = '🔇';
+      }
+      
+      musicBtn.addEventListener('click', () => {
+        const enabled = toggleBGM();
+        if (enabled) {
+          musicBtn.classList.remove('muted');
+          if (musicIcon) musicIcon.textContent = '🔊';
+        } else {
+          musicBtn.classList.add('muted');
+          if (musicIcon) musicIcon.textContent = '🔇';
+        }
+      });
+    }
   }
 
   _bindButtons() {
@@ -89,6 +121,9 @@ export class Game {
     this.ui.updateHp(this.player.hp);
     this.ui.updateScore(0);
     this.ui.hideBossHp();
+    
+    // 播放背景音乐
+    playBGM();
   }
 
   _loop(timestamp) {
@@ -191,6 +226,7 @@ export class Game {
     if (!this.player.active) {
       this.gameState = 'gameover';
       this.ui.showGameOver(this.score);
+      stopBGM();
       return;
     }
 
@@ -202,6 +238,7 @@ export class Game {
       } else if (this.levelManager.currentLevel === 2) {
         this.gameState = 'win';
         this.ui.showWinScreen(this.score, this.killCount);
+        stopBGM();
       }
     }
   }
