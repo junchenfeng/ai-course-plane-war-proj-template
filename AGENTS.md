@@ -67,6 +67,59 @@
 - 当用户要求使用HSV算法时，把背景色尽可能去掉
 - 如果你发现背景色不是绿色(绿色判定可以宽泛一点，不用纯色)，向用户发出报警"背景色不是绿色，算法可能失效，建议重新生成
 
+### HSV 去背景算法
+
+**所在位置**：`src/utils.js`
+
+**核心函数**：
+
+| 函数 | 用途 |
+|------|------|
+| `rgbToHsv(r, g, b)` | RGB 转 HSV，返回 `{h, s, v}` |
+| `isGreenColor(h, s, v)` | 判断是否为绿色（色相 60-180°，饱和度≥0.15，明度≥0.15） |
+| `removeBackgroundWithHsv(image)` | 对 ImageBitmap/HTMLImageElement 去绿色背景，返回 `{canvas, isGreenBackground}` |
+| `loadAndProcessImage(src)` | 加载图片并调用 `removeBackgroundWithHsv`，返回 `{canvas, isGreenBackground}` |
+
+**使用方法**：
+```js
+import { loadAndProcessImage } from './utils.js';
+
+// 加载并处理图片
+const result = await loadAndProcessImage('/images/xxx.webp');
+
+// result.canvas 是去背景后的 HTMLCanvasElement，可直接用于 drawImage
+// result.isGreenBackground 表示边缘是否检测到绿色背景
+if (!result.isGreenBackground) {
+  console.warn('背景色不是绿色，HSV 算法可能失效，建议重新生成绿色背景的图片');
+}
+
+// 将处理后的贴图设置到渲染器
+renderer.setPlayerTexture(result.canvas);
+```
+
+**恢复贴图挂载**：在 `game.js` 中取消注释以下内容：
+1. `import { loadAndProcessImage } from './utils.js';`
+2. 构造函数中的 `this._loadPlayerTexture();`
+3. `_loadPlayerTexture()` 方法体
+
+## BGM 背景音乐
+
+**所在位置**：`src/audio.js`
+
+**核心函数**：
+
+| 函数 | 用途 |
+|------|------|
+| `initBGM()` | 初始化 BGM（创建 Audio 元素，加载 `/sounds/bgm.mp3`） |
+| `playBGM()` | 播放 BGM（循环） |
+| `pauseBGM()` | 暂停 BGM |
+| `stopBGM()` | 停止并重置 BGM |
+| `toggleBGM()` | 切换开关，返回当前状态 |
+| `isBGMEnabled()` | 获取当前开关状态 |
+| `setBGMVolume(volume)` | 设置音量 (0-1) |
+
+**恢复 BGM 自动播放**：在 `game.js` 的 `startGame()` 中取消注释 `playBGM();`
+
 
 ## 图片生成规范
 - 当用户使用genrate_images的工具或者要求生成图片后，将图片下载到本项目的`tmp`文件夹下，并在对话中提供预览
