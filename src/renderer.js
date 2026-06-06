@@ -6,12 +6,21 @@ export class Renderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.stars = [];
+    this.playerTexture = null; // 玩家贴图（去背景后的 canvas）
     this.initStars();
   }
 
   resize() {
     this.stars = [];
     this.initStars();
+  }
+
+  /**
+   * 设置玩家贴图
+   * @param {HTMLCanvasElement} texture - 去背景后的 canvas
+   */
+  setPlayerTexture(texture) {
+    this.playerTexture = texture;
   }
 
   initStars() {
@@ -73,26 +82,46 @@ export class Renderer {
     if (player.isInvincible()) ctx.globalAlpha = 0.5;
     ctx.translate(player.x, player.y);
 
-    // 主体三角形
-    ctx.beginPath();
-    ctx.moveTo(0, -CONFIG.PLAYER_SIZE);
-    ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
-    ctx.lineTo(CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
-    ctx.closePath();
-    ctx.fillStyle = CONFIG.PLAYER_COLOR;
-    ctx.shadowColor = CONFIG.PLAYER_COLOR;
-    ctx.shadowBlur = 15;
-    ctx.fill();
+    // 如果有贴图，使用图片绘制
+    if (this.playerTexture) {
+      const size = CONFIG.PLAYER_SIZE;
+      const textureWidth = this.playerTexture.width;
+      const textureHeight = this.playerTexture.height;
+      // 缩放贴图以适应玩家大小，保持原始宽高比
+      const scale = (size * 2) / Math.max(textureWidth, textureHeight);
+      const drawWidth = textureWidth * scale;
+      const drawHeight = textureHeight * scale;
+      // 居中绘制，图片顶部指向玩家前方
+      ctx.drawImage(
+        this.playerTexture,
+        -drawWidth / 2,
+        -drawHeight / 2,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      // 无贴图时使用原有的三角形绘制
+      // 主体三角形
+      ctx.beginPath();
+      ctx.moveTo(0, -CONFIG.PLAYER_SIZE);
+      ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
+      ctx.lineTo(CONFIG.PLAYER_SIZE * 0.8, CONFIG.PLAYER_SIZE * 0.5);
+      ctx.closePath();
+      ctx.fillStyle = CONFIG.PLAYER_COLOR;
+      ctx.shadowColor = CONFIG.PLAYER_COLOR;
+      ctx.shadowBlur = 15;
+      ctx.fill();
 
-    // 内部装饰
-    ctx.beginPath();
-    ctx.moveTo(0, -CONFIG.PLAYER_SIZE * 0.6);
-    ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
-    ctx.lineTo(CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
-    ctx.closePath();
-    ctx.fillStyle = CONFIG.PLAYER_COLOR_LIGHT;
-    ctx.fill();
-    ctx.shadowBlur = 0;
+      // 内部装饰
+      ctx.beginPath();
+      ctx.moveTo(0, -CONFIG.PLAYER_SIZE * 0.6);
+      ctx.lineTo(-CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
+      ctx.lineTo(CONFIG.PLAYER_SIZE * 0.4, CONFIG.PLAYER_SIZE * 0.3);
+      ctx.closePath();
+      ctx.fillStyle = CONFIG.PLAYER_COLOR_LIGHT;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
 
     ctx.restore();
 

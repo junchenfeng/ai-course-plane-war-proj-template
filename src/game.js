@@ -11,6 +11,7 @@ import { LevelManager } from './levels.js';
 import { checkCollisions } from './collision.js';
 import { PowerUpType } from './config.js';
 import { checkPowerUpCollisions, activatePowerUp } from './powerups.js';
+import { loadAndProcessImage } from './utils.js';
 import { initBGM, playBGM, stopBGM, toggleBGM, isBGMEnabled } from './audio.js';
 
 export class Game {
@@ -37,11 +38,29 @@ export class Game {
     this.transitionPlayerStartX = 0;
     this.transitionPlayerStartY = 0;
 
+    // 加载玩家贴图
+    this._loadPlayerTexture();
+
     this._bindButtons();
     this._bindPowerupClick();
     this._bindMusicToggle();
     this.ui.showStartScreen();
     this._loop(0);
+  }
+
+  async _loadPlayerTexture() {
+    try {
+      const result = await loadAndProcessImage('/images/player.webp');
+      this.renderer.setPlayerTexture(result.canvas);
+
+      // 检测背景色是否为绿色，如果不是则发出警告
+      if (!result.isGreenBackground) {
+        console.warn('背景色不是绿色，HSV 算法可能失效，建议重新生成绿色背景的图片');
+      }
+    } catch (error) {
+      console.error('加载玩家贴图失败:', error);
+      // 失败时继续使用原有的三角形绘制
+    }
   }
 
   _bindMusicToggle() {
