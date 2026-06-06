@@ -27,7 +27,7 @@ export class PowerUp {
 export function spawnPowerUp(x, y) {
   if (Math.random() >= CONFIG.POWERUP_DROP_RATE) return null;
 
-  const types = [PowerUpType.SPREAD, PowerUpType.BOMB, PowerUpType.HEART];
+  const types = [PowerUpType.SPREAD];
   const idx = Math.floor(Math.random() * types.length);
   return new PowerUp(x, y, types[idx]);
 }
