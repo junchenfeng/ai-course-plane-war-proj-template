@@ -73,7 +73,7 @@ export const CONFIG = {
   STAR_TWINKLE_SPEED: 0.003,
 
   // ===== 道具 =====
-  POWERUP_DROP_RATE: 0.33,
+  POWERUP_DROP_RATE: 0.66,
   POWERUP_SPREAD_ANGLE: 15,
   POWERUP_SIZE: 12,
   POWERUP_FALL_SPEED: 2,
@@ -106,13 +106,13 @@ export const CONFIG = {
 // 关卡配置
 export const LEVELS = [
   {
-    yellowEnemies: 10,
+    yellowEnemies: 6,
     bossCount: 0,
     enemiesPerWave: 1,
     title: '测试关',
   },
   {
-    yellowEnemies: 15,
+    yellowEnemies: 10,
     bossCount: 1,
     enemiesPerWave: 2,
     title: 'boss来了',
