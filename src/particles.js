@@ -42,16 +42,6 @@ export class ParticleSystem {
     }
   }
 
-  createFlash(x, y, color = '#44ff44') {
-    for (let i = 0; i < 8; i++) {
-      this.particles.push(new Particle(
-        x + randomRange(-10, 10), y + randomRange(-10, 10),
-        randomRange(-0.5, 0.5), randomRange(-0.5, 0.5),
-        color, randomRange(4, 8), 15
-      ));
-    }
-  }
-
   createBossExplosion(x, y) {
     for (let layer = 0; layer < 3; layer++) {
       const count = 30;

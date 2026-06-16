@@ -9,18 +9,6 @@ export function distance(a, b) {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 }
 
-export function normalizeVelocity(v) {
-  const mag = Math.sqrt(v.vx ** 2 + v.vy ** 2);
-  if (mag === 0) return { vx: 0, vy: 0 };
-  return { vx: v.vx / mag, vy: v.vy / mag };
-}
-
-export function calculateDirection(from, to) {
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  return normalizeVelocity({ vx: dx, vy: dy });
-}
-
 export function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }

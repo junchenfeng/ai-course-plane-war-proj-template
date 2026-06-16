@@ -137,9 +137,7 @@ export class Renderer {
     ctx.translate(enemy.x, enemy.y);
 
     if (enemy.isDying) {
-      if (enemy.type === EnemyType.GREEN_ARROW && enemy.flashTimer > 25) {
-        ctx.globalAlpha = 0.3;
-      }
+      // 死亡闪烁由敌人自身控制
     }
 
     if (enemy.type === EnemyType.YELLOW_CIRCLE) {
@@ -155,18 +153,6 @@ export class Renderer {
       ctx.fill();
       ctx.shadowBlur = 0;
       this.drawHpBar(enemy);
-    } else if (enemy.type === EnemyType.GREEN_ARROW) {
-      ctx.beginPath();
-      ctx.moveTo(0, enemy.size);
-      ctx.lineTo(-enemy.size * 0.6, -enemy.size * 0.3);
-      ctx.lineTo(0, -enemy.size * 0.6);
-      ctx.lineTo(enemy.size * 0.6, -enemy.size * 0.3);
-      ctx.closePath();
-      ctx.fillStyle = '#44ff44';
-      ctx.shadowColor = '#44ff44';
-      ctx.shadowBlur = 10;
-      ctx.fill();
-      ctx.shadowBlur = 0;
     }
 
     ctx.restore();

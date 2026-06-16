@@ -26,13 +26,11 @@ export class LevelManager {
     this.levelComplete = false;
 
     if (level === 1) {
-      // 10黄 + 5绿
+      // 10黄
       for (let i = 0; i < 10; i++) this.enemiesToSpawn.push(EnemyType.YELLOW_CIRCLE);
-      for (let i = 0; i < 5; i++) this.enemiesToSpawn.push(EnemyType.GREEN_ARROW);
     } else if (level === 2) {
-      // 5黄 + 10绿 + 1boss
-      for (let i = 0; i < 5; i++) this.enemiesToSpawn.push(EnemyType.YELLOW_CIRCLE);
-      for (let i = 0; i < 10; i++) this.enemiesToSpawn.push(EnemyType.GREEN_ARROW);
+      // 15黄 + 1boss
+      for (let i = 0; i < 15; i++) this.enemiesToSpawn.push(EnemyType.YELLOW_CIRCLE);
     }
 
     // 随机打乱

@@ -9,8 +9,6 @@ function handleKill(enemy, particles, powerups) {
   if (!effect) return null;
   if (effect === 'explosion') {
     particles.createExplosion(enemy.x, enemy.y, '#ffff00');
-  } else if (effect === 'flash') {
-    particles.createFlash(enemy.x, enemy.y, '#44ff44');
   } else if (effect === 'boss_explosion') {
     particles.createBossExplosion(enemy.x, enemy.y);
   }
@@ -35,7 +33,7 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
         bullet.active = false;
         playHitSound();
         if (effect) {
-          scoreDelta += effect === 'explosion' ? CONFIG.YELLOW_SCORE : CONFIG.GREEN_SCORE;
+          scoreDelta += effect === 'explosion' ? CONFIG.YELLOW_SCORE : CONFIG.BOSS_SCORE;
           kills++;
         }
       }
@@ -81,9 +79,6 @@ export function checkCollisions(player, enemies, bosses, particles, powerups) {
       const effect = handleKill(enemy, particles, powerups);
       if (effect === 'explosion') {
         scoreDelta += CONFIG.YELLOW_SCORE;
-        kills++;
-      } else if (effect === 'flash') {
-        scoreDelta += CONFIG.GREEN_SCORE;
         kills++;
       } else if (effect === 'boss_explosion') {
         scoreDelta += CONFIG.BOSS_SCORE;

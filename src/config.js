@@ -21,14 +21,11 @@ export const CONFIG = {
   // ===== 敌人 =====
   ENEMY_SIZE: 25,
   ENEMY_FALL_SPEED_YELLOW: 1,
-  ENEMY_FALL_SPEED_GREEN: 0.5,
   ENEMY_REMOVE_OFFSET: 50,
   ENEMY_DEATH_TIMER: 300,
-  ENEMY_FLASH_DURATION: 50,
 
   // ===== 敌人 HP =====
   YELLOW_ENEMY_HP: 2,
-  GREEN_ENEMY_HP: 1,
   BOSS_HP: 20,
 
   // ===== 射击间隔 =====
@@ -53,7 +50,6 @@ export const CONFIG = {
 
   // ===== 得分 =====
   YELLOW_SCORE: 10,
-  GREEN_SCORE: 20,
   BOSS_SCORE: 200,
 
   // ===== 生成间隔 =====
@@ -61,7 +57,7 @@ export const CONFIG = {
   ENEMY_SPAWN_INTERVAL_MAX: 2000,
 
   // ===== 追踪速度 =====
-  GREEN_ENEMY_TRACKING_SPEED: 2.25,
+  // （绿色追踪敌人已移除）
 
   // ===== 粒子 =====
   PARTICLE_LIFE: 50,
@@ -111,14 +107,12 @@ export const CONFIG = {
 export const LEVELS = [
   {
     yellowEnemies: 10,
-    greenEnemies: 5,
     bossCount: 0,
     enemiesPerWave: 1,
     title: '测试关',
   },
   {
-    yellowEnemies: 5,
-    greenEnemies: 10,
+    yellowEnemies: 15,
     bossCount: 1,
     enemiesPerWave: 2,
     title: 'boss来了',
@@ -128,7 +122,6 @@ export const LEVELS = [
 // 敌人类型
 export const EnemyType = {
   YELLOW_CIRCLE: 'yellow_circle',
-  GREEN_ARROW: 'green_arrow',
   RED_BOSS: 'red_boss',
 };
 
