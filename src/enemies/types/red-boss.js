@@ -21,8 +21,9 @@ class RedBossEnemy extends BaseEnemy {
   /**
    * 自定义移动 + 射击逻辑
    * 默认基类行为不适用，完整重写
+   * 签名: (self, playerPos, dt) - 与 BaseEnemy.update 匹配
    */
-  _onUpdate(playerPos, dt) {
+  _onUpdate(self, playerPos, dt) {
     // 阶段 1：进入屏幕，移动到目标 Y
     if (this.y < CONFIG.CANVAS_HEIGHT / CONFIG.BOSS_STOP_Y_RATIO) {
       this.y += CONFIG.BOSS_MOVE_SPEED;
