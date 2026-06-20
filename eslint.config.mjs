@@ -18,7 +18,6 @@ export default [
         Math: "readonly",
         console: "readonly",
         AudioContext: "readonly",
-        Audio: "readonly",
         Image: "readonly",
       },
     },

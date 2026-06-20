@@ -1,11 +1,8 @@
 // 音频管理模块
+// 注意：基础版本不包含 BGM。如需 BGM，请参考 docs/ADD-BGM.md 自行添加（高级版块）
 
 let audioCtx = null;
 let audioInitialized = false;
-
-// BGM 相关
-let bgmElement = null;
-let bgmEnabled = true;
 
 export function initAudio() {
   if (audioInitialized) return;
@@ -16,64 +13,6 @@ export function initAudio() {
     audioCtx.resume();
   }
   audioInitialized = true;
-}
-
-// 初始化 BGM
-export function initBGM() {
-  if (bgmElement) return;
-  
-  bgmElement = new Audio('/sounds/bgm.mp3');
-  bgmElement.loop = true;
-  bgmElement.volume = 0.5;
-  bgmElement.preload = 'auto';
-}
-
-// 播放 BGM
-export function playBGM() {
-  if (!bgmElement) initBGM();
-  if (bgmEnabled && bgmElement.paused) {
-    bgmElement.play().catch(() => {
-      // 静默处理自动播放限制错误
-    });
-  }
-}
-
-// 暂停 BGM
-export function pauseBGM() {
-  if (bgmElement && !bgmElement.paused) {
-    bgmElement.pause();
-  }
-}
-
-// 停止 BGM（重置到开头）
-export function stopBGM() {
-  if (bgmElement) {
-    bgmElement.pause();
-    bgmElement.currentTime = 0;
-  }
-}
-
-// 切换 BGM 开关
-export function toggleBGM() {
-  bgmEnabled = !bgmEnabled;
-  if (bgmEnabled) {
-    playBGM();
-  } else {
-    pauseBGM();
-  }
-  return bgmEnabled;
-}
-
-// 获取 BGM 状态
-export function isBGMEnabled() {
-  return bgmEnabled;
-}
-
-// 设置 BGM 音量
-export function setBGMVolume(volume) {
-  if (bgmElement) {
-    bgmElement.volume = Math.max(0, Math.min(1, volume));
-  }
 }
 
 export function getAudioContext() {
@@ -140,5 +79,3 @@ export function playDamageSound() {
     // 静默处理音频错误
   }
 }
-
-
