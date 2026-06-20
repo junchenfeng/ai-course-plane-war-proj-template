@@ -13,7 +13,8 @@
 //  - _onShootTick(enemy, player, dt)  每帧射击逻辑
 //  - _onDying(enemy, dt)              死亡动画
 //  - _onShoot(enemy, player)          发射子弹时被调用
-import { ENEMY_CONFIGS } from '../config.js';
+import { ENEMY_CONFIGS, BulletOwner } from '../config.js';
+import { Bullet } from '../player.js';
 
 export class BaseEnemy {
   constructor(type, startX) {
@@ -64,7 +65,11 @@ export class BaseEnemy {
     } else if (this.shootInterval > 0) {
       this.shootCooldown -= dt;
       if (this.shootCooldown <= 0) {
-        if (typeof this._onShoot === 'function') this._onShoot(this, playerPos);
+        if (typeof this._onShoot === 'function') {
+          this._onShoot(this, playerPos);
+        } else {
+          this._defaultShoot();
+        }
         this.shootCooldown = this.shootInterval;
       }
     }
@@ -95,4 +100,19 @@ export class BaseEnemy {
   }
 
   isAlive() { return this.hp > 0; }
+
+  /**
+   * 默认射击：向下发射一颗子弹
+   * 子类可重写或通过 _onShoot 钩子覆盖
+   */
+  _defaultShoot() {
+    this.bullets.push(new Bullet(
+      this.x,
+      this.y + this.size,
+      0,
+      4,
+      BulletOwner.ENEMY,
+      this.shootColor,
+    ));
+  }
 }
