@@ -1,7 +1,6 @@
 // 关卡系统模块
 import { CONFIG, EnemyType } from './config.js';
-import { Enemy } from './enemies.js';
-import { Boss } from './boss.js';
+import { createEnemy, createBoss } from './enemies/index.js';
 import { randomRange } from './utils.js';
 
 export class LevelManager {
@@ -52,7 +51,7 @@ export class LevelManager {
         const spawnCount = this.currentLevel === 1 ? 1 : 2;
         for (let i = 0; i < spawnCount && this.enemiesToSpawn.length > 0; i++) {
           const type = this.enemiesToSpawn.shift();
-          enemies.push(new Enemy(type));
+          enemies.push(createEnemy(type));
           this.spawnedCount++;
         }
         this.spawnTimer = randomRange(CONFIG.ENEMY_SPAWN_INTERVAL_MIN, CONFIG.ENEMY_SPAWN_INTERVAL_MAX);
@@ -63,7 +62,7 @@ export class LevelManager {
     if (this.currentLevel === 2 && this.enemiesToSpawn.length === 0 && !this.bossSpawned) {
       const aliveEnemies = enemies.filter(e => e.active && e.isAlive());
       if (aliveEnemies.length === 0) {
-        this.boss = new Boss();
+        this.boss = createBoss();
         this.bossSpawned = true;
         this.spawnedCount++;
       }

@@ -2,11 +2,12 @@
 // 通过 Vite 的 import.meta.glob 自动扫描 types/ 目录
 // 加新文件即自动注册
 import { BaseEnemy } from './base.js';
+import { EnemyType } from '../config.js';
 
 const modules = import.meta.glob('./types/*.js', { eager: true });
 
 /**
- * EnemyRegistry: type -> { type, class, ... }
+ * EnemyRegistry: type -> { type, class, onRender?, onInit? ... }
  * class 必须继承 BaseEnemy
  */
 const ENEMY_REGISTRY = new Map();
@@ -28,6 +29,13 @@ export function createEnemy(type, startX) {
     return null;
   }
   return new entry.class(type, startX);
+}
+
+/**
+ * 创建 BOSS 敌人（默认 EnemyType.RED_BOSS）
+ */
+export function createBoss(type = EnemyType.RED_BOSS) {
+  return createEnemy(type);
 }
 
 export { BaseEnemy, ENEMY_REGISTRY };

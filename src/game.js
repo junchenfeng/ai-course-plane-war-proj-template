@@ -1,8 +1,7 @@
 // 游戏主循环模块
 import { CONFIG, POWERUP_CONFIGS } from './config.js';
 import { Player } from './player.js';
-import { Enemy } from './enemies.js';
-import { Boss } from './boss.js';
+import { createBoss } from './enemies/index.js';
 import { ParticleSystem } from './particles.js';
 import { Renderer } from './renderer.js';
 import { InputHandler } from './input.js';
