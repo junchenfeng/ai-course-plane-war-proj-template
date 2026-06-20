@@ -9,18 +9,12 @@ export class Boss {
     // 委托给统一的敌人创建器
     const inst = createEnemy(EnemyType.RED_BOSS);
     if (!inst) throw new Error('无法创建 BOSS: red_boss 未注册');
-    // 浅拷贝所有 own 属性
-    Object.assign(this, inst);
-    // 遍历原型链，把所有方法显式绑定到 this
-    let proto = Object.getPrototypeOf(inst);
-    while (proto && proto !== Object.prototype) {
-      for (const name of Object.getOwnPropertyNames(proto)) {
-        if (name === 'constructor') continue;
-        if (typeof inst[name] === 'function' && this[name] === undefined) {
-          this[name] = inst[name].bind(inst);
-        }
-      }
-      proto = Object.getPrototypeOf(proto);
+    // 浅拷贝属性 + 方法绑定
+    for (const key of Object.keys(inst)) {
+      this[key] = inst[key];
     }
+    this.update = inst.update.bind(inst);
+    this.takeDamage = inst.takeDamage.bind(inst);
+    this.isAlive = inst.isAlive.bind(inst);
   }
 }

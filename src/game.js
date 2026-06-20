@@ -11,7 +11,7 @@ import { LevelManager } from './levels.js';
 import { checkCollisions } from './collision.js';
 import { checkPowerUpCollisions, activatePowerUp, updatePlayerPowerUps } from './powerups.js';
 // import { loadAndProcessImage } from './utils.js'; // 保留以备后续恢复贴图挂载
-// import { initBGM, playBGM, stopBGM, toggleBGM, isBGMEnabled } from './audio.js'; // BGM 已从基础版本移除
+import { initBGM, playBGM, stopBGM, toggleBGM, isBGMEnabled } from './audio.js';
 
 export class Game {
   constructor(canvas) {
@@ -42,6 +42,7 @@ export class Game {
 
     this._bindButtons();
     this._bindPowerupClick();
+    this._bindMusicToggle();
     this.ui.showStartScreen();
     this._loop(0);
   }
@@ -75,6 +76,36 @@ export class Game {
   //     // 失败时继续使用原有的三角形绘制
   //   }
   // }
+
+  _bindMusicToggle() {
+    const musicBtn = document.getElementById('music-toggle');
+    const musicIcon = document.getElementById('music-icon');
+    
+    // 初始化按钮状态
+    initBGM();
+    
+    if (musicBtn) {
+      // 根据当前状态设置初始样式
+      if (isBGMEnabled()) {
+        musicBtn.classList.remove('muted');
+        if (musicIcon) musicIcon.textContent = '🔊';
+      } else {
+        musicBtn.classList.add('muted');
+        if (musicIcon) musicIcon.textContent = '🔇';
+      }
+      
+      musicBtn.addEventListener('click', () => {
+        const enabled = toggleBGM();
+        if (enabled) {
+          musicBtn.classList.remove('muted');
+          if (musicIcon) musicIcon.textContent = '🔊';
+        } else {
+          musicBtn.classList.add('muted');
+          if (musicIcon) musicIcon.textContent = '🔇';
+        }
+      });
+    }
+  }
 
   _bindButtons() {
     const startBtn = document.getElementById('start-btn');
@@ -122,7 +153,8 @@ export class Game {
     this.ui.updateScore(0);
     this.ui.hideBossHp();
     
-    // 背景音乐已从基础版本移除
+    // 播放背景音乐（暂时禁用自动播放，后续可恢复）
+    // playBGM();
   }
 
   _loop(timestamp) {
@@ -204,6 +236,7 @@ export class Game {
     if (!this.player.active) {
       this.gameState = 'gameover';
       this.ui.showGameOver(this.score);
+      stopBGM();
       return;
     }
 
@@ -215,6 +248,7 @@ export class Game {
       } else if (this.levelManager.currentLevel === 2) {
         this.gameState = 'win';
         this.ui.showWinScreen(this.score, this.killCount);
+        stopBGM();
       }
     }
   }

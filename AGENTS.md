@@ -22,7 +22,7 @@
 ├── src/
 │   ├── main.js             # 入口，导入所有模块并启动游戏
 │   ├── config.js           # 导出 CONFIG、EnemyType、PowerUpType、ENEMY_CONFIGS、POWERUP_CONFIGS
-│   ├── audio.js            # audioCtx 创建、音效播放（基础版本无 BGM）
+│   ├── audio.js            # audioCtx 创建、音效播放、BGM 控制
 │   ├── player.js           # 玩家创建、移动、射击逻辑 + Bullet 类
 │   ├── utils.js            # 工具函数 + HSV 去背景算法
 │   ├── enemies.js          # 敌人模块入口（createEnemy 工厂）
@@ -120,7 +120,23 @@ renderer.setPlayerTexture(result.canvas);
 2. 构造函数中的 `this._loadPlayerTexture();`
 3. `_loadPlayerTexture()` 方法体
 
-> 注：基础版本不包含 BGM（背景音乐）。如需 BGM，请参考进阶教程 `docs/ADD-BGM.md` 自行实现（独立模块，不污染基础版本）。
+## BGM 背景音乐
+
+**所在位置**：`src/audio.js`
+
+**核心函数**：
+
+| 函数 | 用途 |
+|------|------|
+| `initBGM()` | 初始化 BGM（创建 Audio 元素，加载 `/sounds/bgm.mp3`） |
+| `playBGM()` | 播放 BGM（循环） |
+| `pauseBGM()` | 暂停 BGM |
+| `stopBGM()` | 停止并重置 BGM |
+| `toggleBGM()` | 切换开关，返回当前状态 |
+| `isBGMEnabled()` | 获取当前开关状态 |
+| `setBGMVolume(volume)` | 设置音量 (0-1) |
+
+**恢复 BGM 自动播放**：在 `game.js` 的 `startGame()` 中取消注释 `playBGM();`
 
 ## 敌人模块化架构
 
