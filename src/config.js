@@ -78,7 +78,6 @@ export const CONFIG = {
   POWERUP_SIZE: 12,
   POWERUP_FALL_SPEED: 2,
   PLAYER_MAX_HP: 5,
-  BOMB_DAMAGE: 5,
 
   // ===== 商城（预留） =====
   SHOP_STARTING_COINS: 12580,
@@ -122,6 +121,7 @@ export const LEVELS = [
 // 敌人类型
 export const EnemyType = {
   YELLOW_CIRCLE: 'yellow_circle',
+  GREEN_TRIANGLE: 'green_triangle',
   RED_BOSS: 'red_boss',
 };
 
@@ -132,43 +132,77 @@ export const BulletOwner = {
   ENEMY_TRACKING: 'enemy_tracking',
 };
 
+// ===== 敌人配置注册表 =====
+// 新增敌人：1) src/enemies/types/ 加新文件 2) 此处加一条
+// 字段说明：shootInterval=0 表示该敌人不射击；deathEffect 控制死亡特效
+export const ENEMY_CONFIGS = {
+  [EnemyType.YELLOW_CIRCLE]: {
+    hp: CONFIG.YELLOW_ENEMY_HP,
+    size: CONFIG.ENEMY_SIZE,
+    score: CONFIG.YELLOW_SCORE,
+    fallSpeed: CONFIG.ENEMY_FALL_SPEED_YELLOW,
+    shootInterval: CONFIG.YELLOW_ENEMY_SHOOT_INTERVAL,
+    shootColor: '#ffff00',
+    color: '#ffff00',
+    deathEffect: 'explosion',
+  },
+  [EnemyType.RED_BOSS]: {
+    hp: CONFIG.BOSS_HP,
+    size: CONFIG.BOSS_SIZE,
+    score: CONFIG.BOSS_SCORE,
+    fallSpeed: 0,                        // BOSS 用 _onUpdate 自定义移动
+    shootInterval: 0,                    // BOSS 用 _onShootTick 自定义射击
+    shootColor: '#ff4444',
+    color: '#ff4444',
+    deathEffect: 'boss_explosion',
+  },
+  [EnemyType.GREEN_TRIANGLE]: {
+    hp: 2,
+    size: 22,
+    score: 15,
+    fallSpeed: 0,                        // 用 _onUpdate 自定义
+    shootInterval: 2000,                 // 2 秒射击一次
+    shootColor: '#44ff88',
+    color: '#44ff44',
+    deathEffect: 'explosion',
+  },
+};
+
 // ===== 道具类型（可扩展注册表） =====
 // 新增道具只需在此追加一条 definition 即可，无需改动碰撞/渲染逻辑
-// ⚠️ 数字键绑定：散弹=数字1, 炸弹=数字2（与 input.js 中 keydown case 对应，新增道具需同步更新 input.js 和 game.js）
+// ⚠️ 数字键绑定：散弹=数字1，后续道具从数字2 开始（与 input.js 中 keydown case 对应，新增道具需同步更新 input.js 和 game.js）
 
 export const PowerUpType = {
   SPREAD: 'spread',   // 可储存状态道具：激活后持续发射散弹
-  BOMB: 'bomb',       // 可储存消耗品：清屏子弹 + 全体敌人扣血
   HEART: 'heart',     // 瞬间消耗品：拾取即恢复 1HP
 };
 
 // 道具配置注册表 — 每个道具类型一条
-// 新增：加一个条目即可；修改：改这里全局生效
+// 新增：1) src/powerups/types/ 加新文件 2) 此处加一条 definition
+// 字段说明：hotkey 留空表示该道具无需手动激活（瞬间型）
 export const POWERUP_CONFIGS = {
   [PowerUpType.SPREAD]: {
+    type: PowerUpType.SPREAD,
     name: '散弹',
     color: '#4488ff',
     icon: 'crosshair',
+    label: 'S',
+    hotkey: '1',                 // 绑定的数字键
+    indicatorId: 'spread-indicator',
     description: '发射 3 颗散射子弹',
     duration: 5000,        // ms, 持续状态时长
-    dropWeight: 1,          // 掉落权重（三种等权重）
+    dropWeight: 1,          // 掉落权重
     maxInventory: 1,         // 背包最大持有数
     isActivable: true,      // 可主动激活
   },
-  [PowerUpType.BOMB]: {
-    name: '炸弹',
-    color: '#ff4444',
-    icon: 'bomb',
-    description: '清除全屏子弹并伤害所有敌人',
-    duration: 0,            // 无持续状态，瞬间生效
-    dropWeight: 1,
-    maxInventory: 3,
-    isActivable: true,
-  },
   [PowerUpType.HEART]: {
+    type: PowerUpType.HEART,
     name: '生命',
     color: '#ff4488',
     icon: 'heart',
+    label: 'H',
+    hotkey: '',                  // 瞬间型，无热键
+    indicatorId: '',             // 瞬间型，无指示器
     description: '恢复 1 点生命值',
     duration: 0,            // 拾取即生效
     dropWeight: 1,

@@ -19,7 +19,6 @@ export class UI {
     this.winScore = document.getElementById('win-score');
     this.winKills = document.getElementById('win-kills');
     this.spreadIndicator = document.getElementById('spread-indicator');
-    this.bombIndicator = document.getElementById('bomb-indicator');
     this.controlsHelp = document.getElementById('controls-help');
 
     this._initControlsHelp();
@@ -29,18 +28,15 @@ export class UI {
     const moveEl = document.getElementById('help-move');
     const shootEl = document.getElementById('help-shoot');
     const spreadEl = document.getElementById('help-spread');
-    const bombEl = document.getElementById('help-bomb');
-    if (!moveEl || !shootEl || !spreadEl || !bombEl) return;
+    if (!moveEl || !shootEl || !spreadEl) return;
     if (isMobile) {
       moveEl.textContent = '滑动';
       shootEl.textContent = '点击';
       spreadEl.textContent = '点击图标';
-      bombEl.textContent = '点击图标';
     } else {
       moveEl.textContent = 'WASD';
       shootEl.textContent = '空格';
       spreadEl.textContent = '数字1';
-      bombEl.textContent = '数字2';
     }
   }
 
@@ -77,15 +73,6 @@ export class UI {
       this.spreadIndicator.className = 'powerup-indicator has-powerup';
     } else {
       this.spreadIndicator.className = 'powerup-indicator';
-    }
-  }
-
-  updateBombIndicator(hasPowerup) {
-    if (!this.bombIndicator) return;
-    if (hasPowerup) {
-      this.bombIndicator.className = 'powerup-indicator has-powerup';
-    } else {
-      this.bombIndicator.className = 'powerup-indicator';
     }
   }
 

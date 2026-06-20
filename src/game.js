@@ -1,5 +1,5 @@
 // 游戏主循环模块
-import { CONFIG } from './config.js';
+import { CONFIG, POWERUP_CONFIGS } from './config.js';
 import { Player } from './player.js';
 import { Enemy } from './enemies.js';
 import { Boss } from './boss.js';
@@ -9,8 +9,7 @@ import { InputHandler } from './input.js';
 import { UI } from './ui.js';
 import { LevelManager } from './levels.js';
 import { checkCollisions } from './collision.js';
-import { PowerUpType } from './config.js';
-import { checkPowerUpCollisions, activatePowerUp } from './powerups.js';
+import { checkPowerUpCollisions, activatePowerUp, updatePlayerPowerUps } from './powerups.js';
 // import { loadAndProcessImage } from './utils.js'; // 保留以备后续恢复贴图挂载
 import { initBGM, playBGM, stopBGM, toggleBGM, isBGMEnabled } from './audio.js';
 
@@ -46,6 +45,20 @@ export class Game {
     this._bindMusicToggle();
     this.ui.showStartScreen();
     this._loop(0);
+  }
+
+  /**
+   * 建立 hotkey → type 的映射 + indicator → type 的映射
+   * 数据驱动：遍历 POWERUP_CONFIGS 自动构建
+   */
+  _buildPowerupBindings() {
+    this._hotkeyToType = {};   // { '1': 'spread', '2': 'laser', ... }
+    this._indicatorToType = {}; // { 'spread-indicator': 'spread', ... }
+    for (const type in POWERUP_CONFIGS) {
+      const cfg = POWERUP_CONFIGS[type];
+      if (cfg.hotkey) this._hotkeyToType[cfg.hotkey] = type;
+      if (cfg.indicatorId) this._indicatorToType[cfg.indicatorId] = type;
+    }
   }
 
   // 暂时禁用贴图加载，后续可恢复
@@ -105,8 +118,7 @@ export class Game {
   }
 
   _bindPowerupClick() {
-    const spreadEl = document.getElementById('spread-indicator');
-    const bombEl = document.getElementById('bomb-indicator');
+    this._buildPowerupBindings();
 
     const makeHandler = (type) => () => {
       if (this.gameState === 'playing') {
@@ -114,15 +126,14 @@ export class Game {
       }
     };
 
-    if (spreadEl) {
-      const h = makeHandler(PowerUpType.SPREAD);
-      spreadEl.addEventListener('click', h);
-      spreadEl.addEventListener('touchend', (e) => { e.preventDefault(); h(); });
-    }
-    if (bombEl) {
-      const h = makeHandler(PowerUpType.BOMB);
-      bombEl.addEventListener('click', h);
-      bombEl.addEventListener('touchend', (e) => { e.preventDefault(); h(); });
+    // 遍历 indicator 映射自动绑定
+    for (const indicatorId in this._indicatorToType) {
+      const el = document.getElementById(indicatorId);
+      if (!el) continue;
+      const type = this._indicatorToType[indicatorId];
+      const h = makeHandler(type);
+      el.addEventListener('click', h);
+      el.addEventListener('touchend', (e) => { e.preventDefault(); h(); });
     }
   }
 
@@ -161,12 +172,12 @@ export class Game {
   }
 
   _update(deltaTime) {
-    // 可储存道具数字键激活：1=散弹, 2=炸弹（与 input.js 按键绑定对应）
-    if (this.input.consumeSpreadTrigger()) {
-      activatePowerUp(this.player, PowerUpType.SPREAD);
-    }
-    if (this.input.consumeBombTrigger()) {
-      activatePowerUp(this.player, PowerUpType.BOMB);
+    // 可储存道具数字键激活（数据驱动：遍历 hotkey 映射）
+    if (!this._hotkeyToType) this._buildPowerupBindings();
+    for (const num in this._hotkeyToType) {
+      if (this.input.consumeDigitTrigger(num)) {
+        activatePowerUp(this.player, this._hotkeyToType[num]);
+      }
     }
 
     // 更新星空
@@ -177,6 +188,7 @@ export class Game {
 
     // 更新玩家
     this.player.update(this.input, deltaTime);
+    updatePlayerPowerUps(this.player, deltaTime);
 
     // 更新敌人
     this.enemies.forEach(e => e.update(this.player, deltaTime));
@@ -204,32 +216,10 @@ export class Game {
     this.powerups = this.powerups.filter(p => p.active);
     checkPowerUpCollisions(this.player, this.powerups);
 
-    // 炸弹清屏：清除所有敌人子弹 + 全体敌人扣 5HP
-    if (this.player.bombRequested) {
-      this.player.bombRequested = false;
-      this.enemies.forEach(e => {
-        e.bullets = [];
-        e.hp -= CONFIG.BOMB_DAMAGE;
-        if (e.hp <= 0) {
-          e.active = false;
-          this.particles.createExplosion(e.x, e.y, '#ff4444', 20);
-          this.score += CONFIG.YELLOW_SCORE;
-          this.killCount++;
-        }
-      });
-      if (this.levelManager.boss && this.levelManager.boss.active) {
-        this.levelManager.boss.bullets = [];
-        this.levelManager.boss.hp -= CONFIG.BOMB_DAMAGE;
-      }
-      // 炸弹粒子特效
-      this.particles.createExplosion(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, '#ff4444', 60);
-    }
-
     // 更新 UI
     this.ui.updateHp(this.player.hp);
     this.ui.updateScore(this.score);
     this.ui.updateSpreadIndicator(this.player.spreadActive, this.player.hasSpreadPowerup);
-    this.ui.updateBombIndicator(this.player.hasBombPowerup);
     this.ui.updateEnemyCount(
       this.levelManager.spawnedCount,
       this.levelManager.totalEnemies

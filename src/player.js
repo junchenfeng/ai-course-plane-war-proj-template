@@ -18,7 +18,6 @@ export class Player {
 
     // 道具背包系统（由 powerups.js 驱动）
     this.inventory = {};       // { type: count }
-    this.bombRequested = false; // 标记是否需要清屏+全体敌人扣血
   }
 
   update(input, deltaTime) {
@@ -55,16 +54,7 @@ export class Player {
       this.shootCooldown -= deltaTime;
     }
 
-    // 散弹计时器
-    if (this.spreadActive) {
-      this.spreadTimer -= deltaTime;
-      if (this.spreadTimer <= 0) {
-        this.spreadActive = false;
-        this.spreadTimer = 0;
-        // 背包中还有散弹则保持持有态
-        this.hasSpreadPowerup = !!(this.inventory && this.inventory.spread && this.inventory.spread > 0);
-      }
-    }
+    // 散弹持续时间由 powerups.updatePlayerPowerUps 统一处理
 
     // 射击
     if (input.shoot && this.shootCooldown <= 0) {
@@ -116,7 +106,6 @@ export class Player {
     this.spreadTimer = 0;
     this.hasSpreadPowerup = false;
     this.inventory = {};
-    this.bombRequested = false;
   }
 }
 

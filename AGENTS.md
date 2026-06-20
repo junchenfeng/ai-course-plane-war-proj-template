@@ -4,6 +4,7 @@
 
 - **核心**: Vite 6, 纯 JavaScript (ES Module)
 - **样式**: 原生 CSS
+- **架构**: 模块化 + 行为组合（敌人/道具均按文件自动发现）
 
 ## 目录结构
 
@@ -15,22 +16,43 @@
 ├── public/
 │   ├── images/             # 图片资源目录
 │   └── sounds/             # 音频资源目录
+├── docs/                   # 二创教程文档
+│   ├── ADD-ENEMY.md        # 添加新敌人教程
+│   └── ADD-POWERUP.md      # 添加新道具教程
 ├── src/
 │   ├── main.js             # 入口，导入所有模块并启动游戏
-│   ├── config.js           # 导出 CONFIG、EnemyType、BulletOwner
-│   ├── audio.js            # audioCtx 创建、音效播放
+│   ├── config.js           # 导出 CONFIG、EnemyType、PowerUpType、ENEMY_CONFIGS、POWERUP_CONFIGS
+│   ├── audio.js            # audioCtx 创建、音效播放、BGM 控制
 │   ├── player.js           # 玩家创建、移动、射击逻辑 + Bullet 类
-│   ├── enemies.js          # 敌机生成、更新、射击逻辑
-│   ├── boss.js             # BOSS 生成、移动、射击、死亡逻辑
+│   ├── utils.js            # 工具函数 + HSV 去背景算法
+│   ├── enemies.js          # 敌人模块入口（createEnemy 工厂）
+│   ├── boss.js             # Boss 兼容层（委托给 createEnemy(RED_BOSS)）
+│   ├── powerups.js         # 道具模块入口（createPowerUp 工厂 + spawn/manage）
 │   ├── particles.js        # 粒子创建、更新逻辑
-│   ├── collision.js        # 所有碰撞检测
-│   ├── renderer.js         # draw() 函数：星空、玩家、敌机、BOSS、子弹、粒子
-│   ├── ui.js               # updateUI、关卡显示更新
-│   ├── input.js            # 键盘、鼠标事件监听
-│   ├── levels.js           # 关卡系统：敌人生成、关卡切换
+│   ├── collision.js        # 所有碰撞检测（基于通用 takeDamage 返回值）
+│   ├── renderer.js         # draw() 函数：星空、玩家、敌人、BOSS、子弹、粒子、道具
+│   ├── ui.js               # updateUI、关卡显示、道具指示器（数据驱动）
+│   ├── input.js            # 键盘、鼠标事件监听（通用 consumePowerupTrigger）
+│   ├── levels.js           # 关卡系统：敌人生成、关卡切换（数据驱动）
 │   ├── game.js             # 游戏主循环
-│   ├── utils.js            # 工具函数
-│   └── style.css           # 全局样式
+│   ├── style.css           # 全局样式
+│   ├── enemies/            # 敌人模块化目录
+│   │   ├── base.js         # BaseEnemy 基类（生命周期钩子）
+│   │   ├── index.js        # ENEMY_REGISTRY（import.meta.glob 自动发现）
+│   │   ├── types/          # 每种敌人一个文件
+│   │   │   ├── yellow-circle.js
+│   │   │   ├── green-triangle.js
+│   │   │   └── red-boss.js
+│   │   └── behaviors/      # 行为片段库（乐高式组合）
+│   │       ├── movement.js
+│   │       ├── shooting.js
+│   │       └── render.js
+│   └── powerups/           # 道具模块化目录
+│       ├── base.js         # BasePowerUp 基类（生命周期钩子）
+│       ├── index.js        # POWERUP_REGISTRY（自动发现）
+│       └── types/          # 每种道具一个文件
+│           ├── spread.js
+│           └── heart.js
 └── README.md
 ```
 
@@ -44,12 +66,14 @@
 - 使用原生 CSS 进行样式开发
 - 游戏使用 Canvas 2D API 渲染
 - 所有模块通过 ES import/export 组织
+- **添加新敌人/道具**：只需在 `src/enemies/types/` 或 `src/powerups/types/` 新建文件，无需改其他文件（仅需在 `config.js` 注册 type id）
 
 ## 文档维护规范
 
 - 修改代码后，必须检查 `docs/` 目录下的文档是否需要同步更新
 - 涉及关卡、道具、数值变动的，必须同步更新对应的 `.md` 文件
 - 若文档无需更新，需在提交信息或回复中明确说明
+- 添加新的钩子/行为片段时，需同步更新 `docs/ADD-ENEMY.md` 或 `docs/ADD-POWERUP.md` 的速查表
 
 ## 素材规范
 - 服务素材只能来自public
@@ -84,16 +108,10 @@
 ```js
 import { loadAndProcessImage } from './utils.js';
 
-// 加载并处理图片
 const result = await loadAndProcessImage('/images/xxx.webp');
-
-// result.canvas 是去背景后的 HTMLCanvasElement，可直接用于 drawImage
-// result.isGreenBackground 表示边缘是否检测到绿色背景
 if (!result.isGreenBackground) {
   console.warn('背景色不是绿色，HSV 算法可能失效，建议重新生成绿色背景的图片');
 }
-
-// 将处理后的贴图设置到渲染器
 renderer.setPlayerTexture(result.canvas);
 ```
 
@@ -120,6 +138,91 @@ renderer.setPlayerTexture(result.canvas);
 
 **恢复 BGM 自动播放**：在 `game.js` 的 `startGame()` 中取消注释 `playBGM();`
 
+## 敌人模块化架构
+
+**位置**：`src/enemies/`
+
+### BaseEnemy 基类
+**位置**：`src/enemies/base.js`
+
+提供生命周期钩子，子类按需重写：
+
+| 钩子 | 触发时机 | 默认实现 |
+|------|---------|---------|
+| `_onInit()` | 构造时（HP/size 自动设置后） | 无 |
+| `_onUpdate(enemy, player, dt)` | 每帧正常状态 | 无 |
+| `_onShootTick(enemy, player, dt)` | 每帧检查射击 | 无 |
+| `_onDying(enemy, dt)` | 死亡动画期间 | 无 |
+| `_onRender(ctx, enemy)` | 渲染时 | 默认基础渲染 |
+
+内置方法：`update()` / `takeDamage(amount)` / `render()` 等（自动调用钩子）。
+
+### ENEMY_REGISTRY
+**位置**：`src/enemies/index.js`
+
+使用 Vite 的 `import.meta.glob('./types/*.js', { eager: true })` 自动扫描 `types/` 下所有文件。**孩子只要新建文件就自动注册**，无需改 `index.js`。
+
+### ENEMY_CONFIGS
+**位置**：`src/config.js`
+
+注册每种敌人的元数据（HP/size/score/死亡特效等）：
+
+```js
+export const ENEMY_CONFIGS = {
+  [EnemyType.YELLOW_CIRCLE]: {
+    hp: 2, size: 25, score: 10,
+    fallSpeed: 1,
+    shootInterval: 3000, shootColor: '#ffeb3b',
+    color: '#ffeb3b', deathEffect: 'explosion',
+  },
+};
+```
+
+### 行为片段库
+**位置**：`src/enemies/behaviors/`
+
+- `movement.js`：`straight()` / `tracking()` / `sine()` / `zigzag()` / `hover()` / `staticMove()`
+- `shooting.js`：`down()` / `aimed()` / `ring()` / `spread()` / `noShoot()`
+- `render.js`：`circle()` / `circleWithInner()` / `triangle()` / `polygon()` / `star()`
+
+每种敌人**可选**用配置对象（简单）或继承类（复杂 + 状态机）。
+
+## 道具模块化架构
+
+**位置**：`src/powerups/`
+
+### BasePowerUp 基类
+**位置**：`src/powerups/base.js`
+
+| 钩子 | 触发时机 |
+|------|---------|
+| `onPickup(player)` | 玩家捡到瞬间 |
+| `onActivate(player)` | 按热键激活 |
+| `onUpdate(player, dt)` | 每帧（持续型） |
+| `onRender(ctx, player)` | 每帧渲染（玩家身上的护盾等） |
+
+### POWERUP_REGISTRY
+**位置**：`src/powerups/index.js`
+
+`import.meta.glob` 自动发现新文件。
+
+### POWERUP_CONFIGS 字段
+**位置**：`src/config.js`
+
+| 字段 | 用途 | 必填 |
+|------|------|------|
+| `type` | 唯一 id | ✅ |
+| `name` | 中文名 | ✅ |
+| `color` / `icon` / `label` | 视觉 | ✅ |
+| `hotkey` | 数字键（'1' / '2'...） | 激活型必填 |
+| `indicatorId` | HTML 指示器 id | 激活型必填 |
+| `description` | 鼠标 hover 提示 | 否 |
+| `duration` | 持续时间(ms) | 否 |
+| `dropWeight` | 掉落权重 | 默认 1 |
+| `maxInventory` | 背包上限 | 默认 1 |
+| `isActivable` | 是否按热键激活 | 默认 false |
+
+**当前热键分配**：`1`=散弹，`2`=空闲（保留），`3`+ 按顺序。
 
 ## 图片生成规范
 - 当用户使用genrate_images的工具或者要求生成图片后，将图片下载到本项目的`tmp`文件夹下，并在对话中提供预览

@@ -1,71 +1,20 @@
-// 普通敌人模块
-import { CONFIG, EnemyType, BulletOwner } from './config.js';
-import { Bullet } from './player.js';
-import { randomRange } from './utils.js';
+// 敌人模块入口（向后兼容层）
+// 新代码推荐直接用：import { createEnemy } from './enemies/index.js'
+// 本文件保留 Enemy 类的别名，方便现有代码 (levels.js / collision.js) 继续使用
+export { createEnemy, BaseEnemy, ENEMY_REGISTRY } from './enemies/index.js';
 
+import { createEnemy } from './enemies/index.js';
+
+// 保留旧 API：默认敌人类型
 export class Enemy {
   constructor(type, startX) {
-    this.type = type;
-    this.x = startX ?? randomRange(50, CONFIG.CANVAS_WIDTH - 50);
-    this.y = -50;
-    this.shootCooldown = 0;
-    this.bullets = [];
-    this.active = true;
-    this.isDying = false;
-    this.deathTimer = 0;
-
-    switch (type) {
-      case EnemyType.YELLOW_CIRCLE:
-        this.hp = CONFIG.YELLOW_ENEMY_HP;
-        this.maxHp = CONFIG.YELLOW_ENEMY_HP;
-        this.size = CONFIG.ENEMY_SIZE;
-        this.shootCooldown = randomRange(0, CONFIG.YELLOW_ENEMY_SHOOT_INTERVAL);
-        break;
-    }
+    const inst = createEnemy(type, startX);
+    if (!inst) throw new Error(`无法创建敌人: ${type}`);
+    // 浅拷贝属性到 this，保持向后兼容
+    Object.assign(this, inst);
+    // 但 update / takeDamage 方法仍然走原始实例的原型
+    // 因此把方法重新绑定到当前 this
+    this.update = inst.update.bind(inst);
+    this.takeDamage = inst.takeDamage.bind(inst);
   }
-
-  update(playerPos, deltaTime) {
-    if (this.isDying) {
-      this.deathTimer -= deltaTime;
-      if (this.deathTimer <= 0) this.active = false;
-      return;
-    }
-
-    if (this.type === EnemyType.YELLOW_CIRCLE) {
-      this.y += CONFIG.ENEMY_FALL_SPEED_YELLOW;
-      this.shootCooldown -= deltaTime;
-      if (this.shootCooldown <= 0) {
-        this.shootDownwards();
-        this.shootCooldown = CONFIG.YELLOW_ENEMY_SHOOT_INTERVAL;
-      }
-    }
-
-    if (this.y > CONFIG.CANVAS_HEIGHT + CONFIG.ENEMY_REMOVE_OFFSET) {
-      this.active = false;
-    }
-
-    this.bullets.forEach(b => b.update(playerPos));
-    this.bullets = this.bullets.filter(b => b.active);
-  }
-
-  shootDownwards() {
-    this.bullets.push(new Bullet(
-      this.x, this.y + this.size,
-      0, CONFIG.BULLET_SPEED * 0.5,
-      BulletOwner.ENEMY, '#ffff00'
-    ));
-  }
-
-  takeDamage(amount) {
-    this.hp -= amount;
-    if (this.hp <= 0) {
-      this.hp = 0;
-      this.isDying = true;
-      this.deathTimer = CONFIG.ENEMY_DEATH_TIMER;
-      if (this.type === EnemyType.YELLOW_CIRCLE) return 'explosion';
-    }
-    return null;
-  }
-
-  isAlive() { return this.hp > 0; }
 }

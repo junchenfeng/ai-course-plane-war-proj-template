@@ -1,89 +1,20 @@
-// BOSS 模块
-import { CONFIG, EnemyType, BulletOwner } from './config.js';
-import { Bullet } from './player.js';
-import { randomRange } from './utils.js';
+// BOSS 模块 — 兼容层
+// 实际实现已迁移到 src/enemies/types/red-boss.js（继承 BaseEnemy）
+// 本文件保留 Boss 类名以维持向后兼容，新代码请直接用 createEnemy(EnemyType.RED_BOSS)
+import { createEnemy } from './enemies/index.js';
+import { EnemyType } from './config.js';
 
 export class Boss {
   constructor() {
-    this.type = EnemyType.RED_BOSS;
-    this.x = randomRange(80, CONFIG.CANVAS_WIDTH - 80);
-    this.y = CONFIG.BOSS_ENTRY_Y;
-    this.hp = CONFIG.BOSS_HP;
-    this.maxHp = CONFIG.BOSS_HP;
-    this.size = CONFIG.BOSS_SIZE;
-    this.shootCooldown = 0;
-    this.burstCount = 0;
-    this.burstCooldown = 0;
-    this.isBursting = false;
-    this.bullets = [];
-    this.active = true;
-    this.isDying = false;
-    this.deathTimer = 0;
-    this.scaleAnimation = 1;
-  }
-
-  update(playerPos, deltaTime) {
-    if (this.isDying) {
-      this.scaleAnimation -= CONFIG.BOSS_SCALE_RATE;
-      this.deathTimer -= deltaTime;
-      if (this.scaleAnimation <= 0) this.active = false;
-      return;
+    // 委托给统一的敌人创建器
+    const inst = createEnemy(EnemyType.RED_BOSS);
+    if (!inst) throw new Error('无法创建 BOSS: red_boss 未注册');
+    // 浅拷贝属性 + 方法绑定
+    for (const key of Object.keys(inst)) {
+      this[key] = inst[key];
     }
-
-    // 移动到屏幕 1/4 位置
-    if (this.y < CONFIG.CANVAS_HEIGHT / CONFIG.BOSS_STOP_Y_RATIO) {
-      this.y += CONFIG.BOSS_MOVE_SPEED;
-    }
-
-    // 射击逻辑
-    if (this.isBursting) {
-      this.burstCooldown -= deltaTime;
-      if (this.burstCooldown <= 0 && this.burstCount < CONFIG.BOSS_BURST_COUNT) {
-        this.shootTrackingBullet(playerPos);
-        this.burstCount++;
-        this.burstCooldown = CONFIG.BOSS_BURST_INTERVAL;
-      }
-      if (this.burstCount >= CONFIG.BOSS_BURST_COUNT) {
-        this.isBursting = false;
-        this.burstCount = 0;
-        this.shootCooldown = CONFIG.BOSS_SHOOT_INTERVAL;
-      }
-    } else {
-      this.shootCooldown -= deltaTime;
-      if (this.shootCooldown <= 0) {
-        this.isBursting = true;
-        this.burstCooldown = 0;
-      }
-    }
-
-    this.bullets.forEach(b => b.update());
-    this.bullets = this.bullets.filter(b => b.active);
+    this.update = inst.update.bind(inst);
+    this.takeDamage = inst.takeDamage.bind(inst);
+    this.isAlive = inst.isAlive.bind(inst);
   }
-
-  shootTrackingBullet(playerPos) {
-    // 发射时计算方向，之后子弹沿固定方向飞行
-    const dx = playerPos.x - this.x;
-    const dy = playerPos.y - this.y;
-    const mag = Math.sqrt(dx * dx + dy * dy) || 1;
-    const vx = (dx / mag) * CONFIG.BULLET_SPEED * CONFIG.BOSS_BULLET_SPEED_MULT;
-    const vy = (dy / mag) * CONFIG.BULLET_SPEED * CONFIG.BOSS_BULLET_SPEED_MULT;
-    this.bullets.push(new Bullet(
-      this.x, this.y + this.size,
-      vx, vy,
-      BulletOwner.ENEMY, '#ff4444'
-    ));
-  }
-
-  takeDamage(amount) {
-    this.hp -= amount;
-    if (this.hp <= 0) {
-      this.hp = 0;
-      this.isDying = true;
-      this.deathTimer = CONFIG.BOSS_DEATH_TIMER;
-      return 'boss_explosion';
-    }
-    return null;
-  }
-
-  isAlive() { return this.hp > 0; }
 }

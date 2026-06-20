@@ -12,9 +12,10 @@ export class InputHandler {
     this.mouseY = undefined;
     this.useMouse = false;
     this.mouseDown = false;
-    // 可储存道具数字键绑定：1=散弹, 2=炸弹（与 POWERUP_CONFIGS 中 isActivable 道具对应）
+    // 可储存道具数字键绑定：1=散弹（后续道具从2开始，炸弹已移除）
     this.spreadTriggered = false;
-    this.bombTriggered = false;
+    // 通用数字键触发：'2','3',... 各自一个 flag
+    this._digitFlags = {};
 
     this._onKeyDown = this._onKeyDown.bind(this);
     this._onKeyUp = this._onKeyUp.bind(this);
@@ -45,7 +46,12 @@ export class InputHandler {
       case 'd': case 'arrowright': this.right = true; e.preventDefault(); break;
       case ' ': this.shoot = true; e.preventDefault(); break;
       case '1': this.spreadTriggered = true; e.preventDefault(); break;
-      case '2': this.bombTriggered = true; e.preventDefault(); break;
+    }
+
+    // 通用数字键 2-9：每个数字单独 flag
+    if (e.code && /^Digit[2-9]$/.test(e.code)) {
+      const num = e.code.slice(5);
+      this._digitFlags[num] = true;
     }
   }
 
@@ -111,9 +117,29 @@ export class InputHandler {
     return false;
   }
 
-  consumeBombTrigger() {
-    if (this.bombTriggered) {
-      this.bombTriggered = false;
+  /**
+   * 注册数字键到道具类型的映射
+   * @param {Object} hotkeyMap - { '2': 'bomb', '3': 'laser', ... }
+   */
+  registerPowerupHotkeys(hotkeyMap) {
+    this._hotkeyMap = hotkeyMap || {};
+  }
+
+  /**
+   * 消费指定数字键的触发（通用）
+   * @param {string} num - '1' ~ '9'
+   * @returns {boolean}
+   */
+  consumeDigitTrigger(num) {
+    if (num === '1') {
+      if (this.spreadTriggered) {
+        this.spreadTriggered = false;
+        return true;
+      }
+      return false;
+    }
+    if (this._digitFlags[num]) {
+      this._digitFlags[num] = false;
       return true;
     }
     return false;

@@ -1,5 +1,6 @@
 // 渲染模块
 import { CONFIG, EnemyType, BulletOwner, PowerUpType, POWERUP_CONFIGS } from './config.js';
+import { ENEMY_REGISTRY } from './enemies/index.js';
 
 export class Renderer {
   constructor(canvas) {
@@ -129,86 +130,39 @@ export class Renderer {
     player.bullets.forEach(b => this.drawBullet(b));
   }
 
+  /**
+   * 通用敌人渲染（数据驱动）
+   * 从 ENEMY_REGISTRY 读取 onRender 函数
+   */
   drawEnemy(enemy) {
     const ctx = this.ctx;
     if (!enemy.active) return;
 
+    const entry = ENEMY_REGISTRY.get(enemy.type);
     ctx.save();
     ctx.translate(enemy.x, enemy.y);
 
-    if (enemy.isDying) {
-      // 死亡闪烁由敌人自身控制
-    }
-
-    if (enemy.type === EnemyType.YELLOW_CIRCLE) {
+    if (entry && typeof entry.onRender === 'function') {
+      entry.onRender(ctx, enemy);
+    } else {
+      // 兜底：黄色圆
       ctx.beginPath();
       ctx.arc(0, 0, enemy.size, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffcc00';
-      ctx.shadowColor = '#ffcc00';
-      ctx.shadowBlur = 10;
+      ctx.fillStyle = enemy.color ?? '#ffff00';
       ctx.fill();
-      ctx.beginPath();
-      ctx.arc(0, 0, enemy.size * 0.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffdd44';
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      this.drawHpBar(enemy);
     }
 
     ctx.restore();
-
+    this.drawHpBar(enemy);
     enemy.bullets.forEach(b => this.drawBullet(b));
   }
 
+  /**
+   * BOSS 渲染 — 现在复用 drawEnemy（BOSS 也是敌人一种）
+   * 保留此方法仅为向后兼容，内部委托 drawEnemy
+   */
   drawBoss(boss) {
-    const ctx = this.ctx;
-    if (!boss.active) return;
-
-    ctx.save();
-    ctx.translate(boss.x, boss.y);
-
-    if (boss.isDying) {
-      ctx.scale(boss.scaleAnimation, boss.scaleAnimation);
-    }
-
-    const sides = 6;
-    ctx.beginPath();
-    for (let i = 0; i < sides; i++) {
-      const angle = (Math.PI * 2 * i) / sides - Math.PI / 2;
-      const x = Math.cos(angle) * boss.size;
-      const y = Math.sin(angle) * boss.size;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fillStyle = '#ff4444';
-    ctx.shadowColor = '#ff4444';
-    ctx.shadowBlur = 20;
-    ctx.fill();
-
-    ctx.beginPath();
-    for (let i = 0; i < sides; i++) {
-      const angle = (Math.PI * 2 * i) / sides - Math.PI / 2;
-      const x = Math.cos(angle) * boss.size * 0.6;
-      const y = Math.sin(angle) * boss.size * 0.6;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fillStyle = '#ff6666';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    this.drawHpBar(boss);
-
-    ctx.font = 'bold 16px Arial';
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.fillText('BOSS', 0, -boss.size - 15);
-
-    ctx.restore();
-
-    boss.bullets.forEach(b => this.drawBullet(b));
+    this.drawEnemy(boss);
   }
 
   drawHpBar(entity) {
@@ -291,8 +245,7 @@ export class Renderer {
     ctx.font = `bold ${powerup.size * 1.1}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const labels = { [PowerUpType.SPREAD]: 'S', [PowerUpType.BOMB]: 'B', [PowerUpType.HEART]: 'H' };
-    ctx.fillText(labels[powerup.type] || '?', 0, 1);
+    ctx.fillText(cfg.label || '?', 0, 1);
 
     ctx.restore();
   }
